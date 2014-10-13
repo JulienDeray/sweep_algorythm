@@ -16,6 +16,11 @@ public class Algorythm {
      * @return Forbidden region
      */
     public static PlacementRegion computeForbiddenRegion(PlacementRegion rj, PlacementRegion ri) {
+        if (rj.getxMax() - ri.getWidth() + 1 > rj.getxMin() + rj.getWidth() -1
+                || rj.getyMax() - ri.getHeight() + 1 > rj.getyMin() + rj.getHeight() - 1) {
+            throw new RuntimeException("Violated constraint (see p.384)");
+        }
+
         int xMin = rj.getxMax() - ri.getWidth() + 1;
         int xMax = rj.getxMin() + rj.getWidth() - 1;
         int yMin = rj.getyMax() - ri.getHeight() + 1;
