@@ -23,7 +23,7 @@ public class MainTest {
     }
 
     @Test
-    public static void testComputeForbiddenRegion() throws Exception {
+    public void testComputeForbiddenRegion() throws Exception {
         PlacementRegion ri = new PlacementRegion(3, 5);
         PlacementRegion rj = new PlacementRegion(6, 7, 7, 8, 3, 2);
 
