@@ -66,4 +66,21 @@ public class PlacementRegion {
                 ", width=" + width +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PlacementRegion)) return false;
+
+        PlacementRegion that = (PlacementRegion) o;
+
+        if (height != that.height) return false;
+        if (width != that.width) return false;
+        if (xMax != that.xMax) return false;
+        if (xMin != that.xMin) return false;
+        if (yMax != that.yMax) return false;
+        if (yMin != that.yMin) return false;
+
+        return true;
+    }
 }
