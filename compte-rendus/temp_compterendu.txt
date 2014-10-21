@@ -1,0 +1,38 @@
+
+Définition du domaine :
+X = [xmin, xmax]
+Y = [ymin, ymax]
+
+
+
+Définition des zones interdites :
+
+On définit une zone interdite d'un rectangle à placer i par rapport à un rectangle fixé j.
+Il faut définir les propriétés suivantes : wi et hi (largeur et hauteur du rectangle à placer) et wj,hj (largeur et hauteur du rectangle fixé), [xjmin,xjmax], [yjmin, yjmax] la zone de placement en considérant le point inférieur gauche.
+
+La formule pour définir la zone interdite où ne pas placer le rectange i est ([xjmax - wi+1, xjmin+ wj-1],[yjmax-hi+1, yjmin+hj-1]) 
+Si la contrainte du calcul de région interdite n'est pas respectée ([xjmax - wi+1, xjmin+ wj-1]<[yjmax-hi+1, yjmin+hj-1]), c'est qu'il n'y a pas de région interdite : on renvoit null
+
+
+PlacementRegion,  : xmin, xmax, ymin, ymax, width, height
+On parle de min et max on considérant toujours l'origine, le coin inférieur gauche
+
+Pour l'instant, la forbiddenRegion est de type PlacementRegion, mais seule les forbiddenRegion ont width=xmax-xmin et height=ymax-ymin
+
+Nous avons un certain nombre de contraintes déjà placées sans avoir besoin de les vérifier. On cherche à ajouter un nouveau rectangle en ne chevauchant pas les autres.
+
+Commence de la plus à gauche, on parcourt colonne par colonne, et on checke les FR(iterator) pour voir s'il y a des débuts ou fin de FR.  = findMinimum() Si c'est le cas on crée un Start End event qu'on ajoute a la queue des events
+
+on reparcoure colonne par colonne , puis parcoure la queue des events pour voir sil y en a un sur cet colonne, puis on remplit le Pstatus (tableau taille colonne, 0 de base) +1 sur case event = handleEvent()
+
+Ensuite, On parcourt chaque colonne sur le domaine de placement du rectangle à poser : (PStatus), 
+s'il y a plusieurs 0 , on fait un random sur les y possibles (y:witness  car cest etre le plus à gauche qui compte) et on place
+
+Nonoverlapleft : on doit placer tous les rectangles en même temps (et non un après les autres déjà placés). On va donc prendre un rectangle par rapport à tous les autres (contraintes).
+On place un rectangle chacun son tour en calculant le minimum possible , avec ce calcul on change la borne x de ce rectangle (par exemple un rectangle x[0,9]y[2,5] le minimum possible est (x:4,y:6) le nouveau domaine est x[4,9]y[2,5]). 
+Ensuite on exécute le sweep algorythme en boucle (recalcul des forbidden region, replacement) jusqu'à que ça ne change plus.
+
+
+
+
+
