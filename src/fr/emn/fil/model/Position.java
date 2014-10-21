@@ -2,18 +2,18 @@
  * Created with IntelliJ IDEA.
  * Autor: julienderay
  * Company : SERLI
- * Date: 20/10/14
- * Time: 12:37
+ * Date: 21/10/14
+ * Time: 12:55
  */
-package fr.emn.fil;
+package fr.emn.fil.model;
 
-public class Domain {
+public class Position {
     private int x;
     private int y;
 
-    public Domain(int y, int x) {
-        this.y = y;
+    public Position(int x, int y) {
         this.x = x;
+        this.y = y;
     }
 
     public int getX() {

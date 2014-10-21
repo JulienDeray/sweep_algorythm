@@ -1,19 +1,13 @@
 package fr.emn.fil;
 
+import fr.emn.fil.model.Constraint;
+import fr.emn.fil.model.Domain;
+import fr.emn.fil.model.ForbiddenRegion;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.Before; 
 import org.junit.After;
 
-import java.util.ArrayList;
-
-/** 
-* Main Tester. 
-* 
-* @author <Authors name> 
-* @since <pre>oct. 13, 2014</pre> 
-* @version 1.0 
-*/ 
 public class MainTest { 
 
     @Before
@@ -26,18 +20,26 @@ public class MainTest {
 
     @Test
     public void testComputeForbiddenRegion() throws Exception {
-        PlacementRegion ri = new PlacementRegion(3, 5);
-        PlacementRegion rj = new PlacementRegion(6, 7, 7, 8, 3, 2);
+        Domain domain = new Domain(10, 10);
 
-        PlacementRegion forbiddenRegion = Algorythm.computeForbiddenRegion(rj, ri);
+        Constraint ri = new Constraint(3, 5);
+        domain.add(ri);
 
-        Assert.assertEquals(forbiddenRegion, new PlacementRegion(5, 8, 4, 8, 3, 2));
+        Constraint rj = new Constraint(6, 7, 7, 8, 3, 2);
+        domain.add(rj);
+
+        ForbiddenRegion forbiddenRegion = Domain.computeForbiddenRegion(rj, ri.getWidth(), ri.getHeight());
+
+        Constraint expectedConstraint = new Constraint(5, 8, 4, 8, 3, 2);
+        Assert.assertEquals(forbiddenRegion.getxMax(), expectedConstraint.getxMax());
+        Assert.assertEquals(forbiddenRegion.getxMin(), expectedConstraint.getxMin());
+        Assert.assertEquals(forbiddenRegion.getyMax(), expectedConstraint.getyMax());
+        Assert.assertEquals(forbiddenRegion.getyMin(), expectedConstraint.getyMin());
     }
 
     @Test
     public void testInitDomain() throws Exception {
         Domain domain = new Domain(10, 10);
-        List<Contraint> constraints = new ArrayList<>();
 
         // contraintes placées arbitrairement
         Constraint c1 = new Constraint(0, 5, 2, 2, 4, 4);
@@ -58,5 +60,7 @@ public class MainTest {
         // constrainte à placer par rapport aux autres
         Constraint c6 = new Constraint(0, 9, 2, 5, 3, 1);
         domain.addCleverly(c6);
+
+//        Assert.assertArrayEquals(c6.getPosition(), new Placement(7, 2));
     }
 } 

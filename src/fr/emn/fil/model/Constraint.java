@@ -5,9 +5,9 @@
  * Date: 13/10/14
  * Time: 08:56
  */
-package fr.emn.fil;
+package fr.emn.fil.model;
 
-public class PlacementRegion {
+public class Constraint {
     private int xMin;
     private int xMax;
 
@@ -17,7 +17,7 @@ public class PlacementRegion {
     private int height;
     private int width;
 
-    public PlacementRegion(int xMin, int xMax, int yMin, int yMax, int width, int height) {
+    public Constraint(int xMin, int xMax, int yMin, int yMax, int width, int height) {
         this.xMin = xMin;
         this.xMax = xMax;
         this.yMin = yMin;
@@ -26,7 +26,7 @@ public class PlacementRegion {
         this.width = width;
     }
 
-    public PlacementRegion(int width, int height) {
+    public Constraint(int width, int height) {
         this.height = height;
         this.width = width;
     }
@@ -70,9 +70,9 @@ public class PlacementRegion {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PlacementRegion)) return false;
+        if (!(o instanceof Constraint)) return false;
 
-        PlacementRegion that = (PlacementRegion) o;
+        Constraint that = (Constraint) o;
 
         if (height != that.height) return false;
         if (width != that.width) return false;
