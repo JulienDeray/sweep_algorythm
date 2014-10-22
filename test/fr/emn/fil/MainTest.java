@@ -3,6 +3,7 @@ package fr.emn.fil;
 import fr.emn.fil.model.Constraint;
 import fr.emn.fil.model.Domain;
 import fr.emn.fil.model.ForbiddenRegion;
+import fr.emn.fil.model.Position;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.Before; 
@@ -59,8 +60,8 @@ public class MainTest {
 
         // constrainte à placer par rapport aux autres
         Constraint c6 = new Constraint(0, 9, 2, 5, 3, 1);
-        domain.addCleverly(c6);
+        Position domainMinimum = domain.findMinimum(c6);
 
-//        Assert.assertArrayEquals(c6.getPosition(), new Placement(7, 2));
+        Assert.assertEquals(domainMinimum, new Position(7, 2));
     }
 } 

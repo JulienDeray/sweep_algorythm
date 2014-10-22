@@ -9,6 +9,7 @@ package fr.emn.fil.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Domain {
     private int x;
@@ -34,17 +35,84 @@ public class Domain {
         constraints.add(constraint);
     }
 
-    public void addCleverly(Constraint constraint) {
+    public Position findMinimum(Constraint constraint) throws Exception {
         List<ForbiddenRegion> forbiddenRegions = getForbiddenRegionsFor( constraint );
 
-        System.out.println(forbiddenRegions);
+        int availableX = -1;
+        List<Integer> availableYs = null;
+        Integer[] qEventInit = initQevent(y, forbiddenRegions);
+
+        for ( int delta = constraint.getxMin(); delta < constraint.getxMax(); delta++ ) {
+            Integer[] qEvent = qEventInit;
+            qEvent = fillQevent(forbiddenRegions, qEvent, delta);
+
+            availableYs = find0(qEvent);
+            if ( availableYs.size() != 0 ) {
+                availableX = delta;
+                break;
+            }
+        }
+
+        if ( availableYs != null ) {
+            if ( availableYs.size() == 1 ) {
+                return new Position( availableX, availableYs.get(0) );
+            }
+            else {
+                Random rand = new Random();
+                return new Position( availableX, availableYs.get( rand.nextInt(availableYs.size()) ) );
+            }
+        }
+        else {
+            throw new Exception("No available position for this constraint");
+        }
+    }
+
+    private static Integer[] initQevent(int yMax, List<ForbiddenRegion> forbiddenRegions) {
+        Integer[] qEvent = new Integer[yMax];
+
+        for (int y = 0; y < qEvent.length; y++) {
+            qEvent[y] = 1;
+        }
+        for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
+            for ( int y = forbiddenRegion.getyMin(); y < forbiddenRegion.getyMax(); y++ ) {
+                qEvent[y] = 0;
+            }
+        }
+
+        return qEvent;
+    }
+
+    private List<Integer> find0(Integer[] qEvent) {
+        List<Integer> res = new ArrayList<>();
+        for (int y = 0; y < qEvent.length; y++) {
+            Integer integer = qEvent[y];
+
+            if ( integer == 0 ) {
+                res.add(y);
+            }
+        }
+        return res;
+    }
+
+    private static Integer[] fillQevent(List<ForbiddenRegion> forbiddenRegions, Integer[] qEvent, int delta) {
+        for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
+            if ( forbiddenRegion != null && forbiddenRegion.getxMin() <= delta && forbiddenRegion.getxMax() >= delta ) {
+                for ( int involvedY = forbiddenRegion.getyMin(); involvedY < forbiddenRegion.getyMax(); involvedY++ ) {
+                    qEvent[involvedY] += 1;
+                }
+            }
+        }
+        return qEvent;
     }
 
     private List<ForbiddenRegion> getForbiddenRegionsFor(Constraint constraint) {
         List<ForbiddenRegion> forbiddenRegions = new ArrayList<>();
 
         for (Constraint c : constraints) {
-            forbiddenRegions.add( computeForbiddenRegion(c, constraint.getWidth(), constraint.getHeight()) );
+            ForbiddenRegion forbiddenRegion = computeForbiddenRegion(c, constraint.getWidth(), constraint.getHeight());
+            if ( forbiddenRegion != null ) {
+                forbiddenRegions.add( forbiddenRegion );
+            }
         }
 
         return forbiddenRegions;
