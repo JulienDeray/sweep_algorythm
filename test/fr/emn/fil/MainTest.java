@@ -61,7 +61,6 @@ public class MainTest {
         // constrainte à placer par rapport aux autres
         Constraint c6 = new Constraint(0, 9, 2, 5, 3, 1);
         Position domainMinimum = domain.findMinimum(c6);
-
         Assert.assertEquals(domainMinimum, new Position(7, 2));
     }
 } 
