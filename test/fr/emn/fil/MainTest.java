@@ -38,7 +38,7 @@ public class MainTest {
         Assert.assertEquals(forbiddenRegion.getyMin(), expectedConstraint.getyMin());
     }
 
-    @Test
+    /*@Test
     public void testInitDomain() throws Exception {
         Domain domain = new Domain(10, 10);
 
@@ -62,5 +62,29 @@ public class MainTest {
         Constraint c6 = new Constraint(0, 9, 2, 5, 3, 1);
         Position domainMinimum = domain.findMinimum(c6);
         Assert.assertEquals(domainMinimum, new Position(7, 2));
+    }*/
+
+    @Test
+    public void testFindMinimum() throws Exception {
+        Domain domain = new Domain(10, 10);
+
+        // contraintes placées arbitrairement
+        Constraint c1 = new Constraint(1, 4, 2, 4, 2, 1);
+        domain.add(c1);
+
+        Constraint c2 = new Constraint(4, 4, 6, 6, 3, 1);
+        domain.add(c2);
+
+        Constraint c3 = new Constraint(2, 4, 8, 9, 1, 1);
+        domain.add(c3);
+
+        Constraint c4 = new Constraint(7, 7, 1, 1, 1, 3);
+        domain.add(c4);
+
+        // constrainte à placer par rapport aux autres
+        Constraint c5 = new Constraint(1, 8, 1, 8, 5, 4);
+        Position domainMinimum = domain.findMinimum(c5);
+
+//        Assert.assertEquals(domainMinimum, new Position(7, 2));
     }
 } 
