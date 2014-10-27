@@ -62,15 +62,15 @@ public class Domain {
 
         //A présent que les évènements sont définis, nous cherchons à trouver l'emplacement libre minimum
         // Vecteur associé à une colonne, indiquant les cases bloquées par des régions interdites
-        Integer[] pStatus = new Integer[this.y];
+        Integer[] pStatus;
         //La coordonnée en abcisse du minimum
         Integer delta = -1;
         //Liste des cases disponibles dans la colonne delta
-        List[] availablesY = new ArrayList[]();
+        List<Integer> availableY = new ArrayList<>();
         //Nous parcourons chaque colonne, puis chaqaue case pour trouver les emplacements libres
-        do{
+        do {
             //Initialise chaque case de la colonne à 0
-            pStatus.initialize();
+            pStatus = makePstatus(this.y, forbiddenRegions);
             //Nous allons à la colonne suivante
             delta++;
             //Nous remplissons le pStatus pour connaître les emplacements libres de la colonne
@@ -79,42 +79,30 @@ public class Domain {
             //Nous vérifions dans chaque case du PStatus s'il y a un/des emplacements
             for (int i = 0; i < pStatus.length; i++) {
                 Integer pStatu = pStatus[i];
-                if(pStatu.equals(0)){
-                    availablesY.add(i);
+                if ( pStatu.equals(0) ) {
+                    availableY.add(i);
                 }
             }
-        }while (0 == availablesY.length());
+        } while (availableY.size() > 0 || delta > this.x);
 
         //On random la valeur de y par rapport aux y disponibles
-        Integer yMinimum = randomY(availablesY);
-
-        //Nous retournons le minimum
-        return new Position(delta,yMinimum);
-
+        if ( availableY.size() == 0 ) {
+            return null;
+        }
+        else if ( availableY.size() == 1) {
+            return new Position(delta, availableY.get(0));
+        }
+        else {
+            return new Position(delta, randomY(availableY));
+        }
     }
 
-    /**
-     * Remplit le pStatus avec le nombre de régions interdites, par case (0,1,2,etc)
-     *
-     * @param positionX la colonne à étudier
-     * @param pStatus où indiquer les emplacements libres ou occupés
-     * @param events les évènements de début et fins de forbidden régions
-     * @return le pStatus, contient les emplacements libres ou occupés de la colonne delta
-     * @throws Exception
-     */
-    public Integer[] handleEvent(Integer positionX, Integer[] pStatus, List<Event> events) throws Exception {
-
+    private int randomY(List<Integer> availablesY) {
+        Random ran = new Random();
+        return availablesY.get( ran.nextInt(availablesY.size() ) );
     }
 
-
-    /**
-     * TODO a supprimer
-     *
-     * @param yMax
-     * @param forbiddenRegions
-     * @return
-     */
-    private static Integer[] initQevent(int yMax, List<ForbiddenRegion> forbiddenRegions) {
+    private Integer[] makePstatus(int yMax, List<ForbiddenRegion> forbiddenRegions) {
         Integer[] qEvent = new Integer[yMax];
 
         for (int y = 0; y < qEvent.length; y++) {
@@ -130,40 +118,26 @@ public class Domain {
     }
 
     /**
-     * TODO a supprimer
+     * Remplit le pStatus avec le nombre de régions interdites, par case (0,1,2,etc)
      *
-     * @param qEvent
-     * @return
+     * @param delta la colonne à étudier
+     * @param pStatus où indiquer les emplacements libres ou occupés
+     * @param events les évènements de début et fins de forbidden régions
+     * @return le pStatus, contient les emplacements libres ou occupés de la colonne delta
+     * @throws Exception
      */
-    private List<Integer> find0(Integer[] qEvent) {
-        List<Integer> res = new ArrayList<>();
-        for (int y = 0; y < qEvent.length; y++) {
-            Integer integer = qEvent[y];
+    public Integer[] handleEvent(Integer delta, Integer[] pStatus, List<Event> events) throws Exception {
+        for (int i = 0; i < events.size(); i += 2) {
+            int minX = events.get(i).getPositionX();
+            int maxX = events.get(i+1).getPositionX();
 
-            if ( integer == 0 ) {
-                res.add(y);
-            }
-        }
-        return res;
-    }
-
-    /**
-     * TODO a supprimer
-     *
-     * @param forbiddenRegions
-     * @param qEvent
-     * @param delta
-     * @return
-     */
-    private static Integer[] fillQevent(List<ForbiddenRegion> forbiddenRegions, Integer[] qEvent, int delta) {
-        for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
-            if ( forbiddenRegion != null && forbiddenRegion.getxMin() <= delta && forbiddenRegion.getxMax() >= delta ) {
-                for ( int involvedY = forbiddenRegion.getyMin(); involvedY < forbiddenRegion.getyMax(); involvedY++ ) {
-                    qEvent[involvedY] += 1;
+            if ( delta <= minX || delta <= maxX ) {
+                for ( int y = events.get(i).getyMin(); y < events.get(i).getyMax(); y++ ) {
+                    pStatus[y] += 1;
                 }
             }
         }
-        return qEvent;
+        return pStatus;
     }
 
     /**

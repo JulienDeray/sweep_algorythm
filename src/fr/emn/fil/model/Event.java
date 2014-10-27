@@ -7,12 +7,12 @@ public class Event {
     /**
      * La limite basse de l'évènement en ordonnée
      */
-    private Integer minY;
+    private Integer yMin;
 
     /**
      * La limite haute de l'évènement en ordonnée
      */
-    private Integer maxY;
+    private Integer yMax;
 
     /**
      * La position de l'évènement en abcisse
@@ -27,8 +27,8 @@ public class Event {
      * @param positionX
      */
     public Event( Integer positionX,Integer minY, Integer maxY) {
-        this.minY = minY;
-        this.maxY = maxY;
+        this.yMin = minY;
+        this.yMax = maxY;
         this.positionX = positionX;
     }
 
@@ -36,27 +36,13 @@ public class Event {
      * Getters et Setters
      */
 
-    public Integer getMinY() {
-        return minY;
+    public Integer getyMin() {
+        return yMin;
     }
-
-    public void setMinY(Integer minY) {
-        this.minY = minY;
+    public Integer getyMax() {
+        return yMax;
     }
-
-    public Integer getMaxY() {
-        return maxY;
-    }
-
-    public void setMaxY(Integer maxY) {
-        this.maxY = maxY;
-    }
-
     public Integer getPositionX() {
         return positionX;
-    }
-
-    public void setPositionX(Integer positionX) {
-        this.positionX = positionX;
     }
 }
