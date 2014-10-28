@@ -68,13 +68,19 @@ public class Domain {
         //Liste des cases disponibles dans la colonne delta
         List<Integer> availableY = new ArrayList<>();
         //Nous parcourons chaque colonne, puis chaqaue case pour trouver les emplacements libres
+
+        int yMin = getMinY(forbiddenRegions);
+        int yMax = getMaxY(forbiddenRegions);
+
         do {
             //Initialise chaque case de la colonne à 0
-            pStatus = makePstatus(this.y, forbiddenRegions);
+            pStatus = makePstatus(yMin, yMax, forbiddenRegions);
+
             //Nous allons à la colonne suivante
             delta++;
+
             //Nous remplissons le pStatus pour connaître les emplacements libres de la colonne
-            pStatus = handleEvent(delta, pStatus, qEvent);
+            pStatus = handleEvent(yMin, delta, pStatus, qEvent);
 
             //Nous vérifions dans chaque case du PStatus s'il y a un/des emplacements
             for (int i = 0; i < pStatus.length; i++) {
@@ -83,7 +89,7 @@ public class Domain {
                     availableY.add(i);
                 }
             }
-        } while (availableY.size() > 0 || delta > this.x);
+        } while (availableY.size() <= 0 || delta < this.x);
 
         //On random la valeur de y par rapport aux y disponibles
         if ( availableY.size() == 0 ) {
@@ -97,20 +103,42 @@ public class Domain {
         }
     }
 
+    private static int getMinY(List<ForbiddenRegion> forbiddenRegions) {
+        int minY = forbiddenRegions.get(0).getyMin();
+        for (int i = 1; i < forbiddenRegions.size(); i++) {
+            int min = forbiddenRegions.get(i).getyMin();
+            if ( min < minY ) {
+                minY = min;
+            }
+        }
+        return minY;
+    }
+
+    private static int getMaxY(List<ForbiddenRegion> forbiddenRegions) {
+        int maxY = forbiddenRegions.get(0).getyMax();
+        for (int i = 1; i < forbiddenRegions.size(); i++) {
+            int max = forbiddenRegions.get(i).getyMax();
+            if ( max > maxY ) {
+                maxY = max;
+            }
+        }
+        return maxY;
+    }
+
     private int randomY(List<Integer> availablesY) {
         Random ran = new Random();
         return availablesY.get( ran.nextInt(availablesY.size() ) );
     }
 
-    private Integer[] makePstatus(int yMax, List<ForbiddenRegion> forbiddenRegions) {
-        Integer[] qEvent = new Integer[yMax];
+    private Integer[] makePstatus(int yMin, int yMax, List<ForbiddenRegion> forbiddenRegions) {
+        Integer[] qEvent = new Integer[yMax - yMin + 1];
 
         for (int y = 0; y < qEvent.length; y++) {
             qEvent[y] = 1;
         }
         for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
-            for ( int y = forbiddenRegion.getyMin(); y < forbiddenRegion.getyMax(); y++ ) {
-                qEvent[y] = 0;
+            for ( int y = forbiddenRegion.getyMin(); y < forbiddenRegion.getyMax() + 1; y++ ) {
+                qEvent[y - yMin] = 0;
             }
         }
 
@@ -126,14 +154,14 @@ public class Domain {
      * @return le pStatus, contient les emplacements libres ou occupés de la colonne delta
      * @throws Exception
      */
-    public Integer[] handleEvent(Integer delta, Integer[] pStatus, List<Event> events) throws Exception {
-        for (int i = 0; i < events.size(); i += 2) {
+    public Integer[] handleEvent(int yMin, Integer delta, Integer[] pStatus, List<Event> events) throws Exception {
+        for (int i = 0; i < events.size() - 1; i += 2) {
             int minX = events.get(i).getPositionX();
             int maxX = events.get(i+1).getPositionX();
 
             if ( delta <= minX || delta <= maxX ) {
                 for ( int y = events.get(i).getyMin(); y < events.get(i).getyMax(); y++ ) {
-                    pStatus[y] += 1;
+                    pStatus[y - yMin] += 1;
                 }
             }
         }

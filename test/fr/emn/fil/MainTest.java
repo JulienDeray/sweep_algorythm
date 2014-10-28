@@ -85,6 +85,7 @@ public class MainTest {
         Constraint c5 = new Constraint(1, 8, 1, 8, 5, 4);
         Position domainMinimum = domain.findMinimum(c5);
 
+        System.out.println(domainMinimum);
 //        Assert.assertEquals(domainMinimum, new Position(7, 2));
     }
 } 
