@@ -17,9 +17,7 @@ public class Domain {
 
     private List<Constraint> constraints;
 
-    public Domain(int y, int x) {
-        this.y = y;
-        this.x = x;
+    public Domain() {
         this.constraints = new ArrayList<>();
     }
 
@@ -32,6 +30,8 @@ public class Domain {
     }
 
     public void add(Constraint constraint) {
+        this.x = (this.x < constraint.getxMax()) ? constraint.getxMax() : this.x;
+        this.y = (this.y < constraint.getyMax()) ? constraint.getyMax() : this.y;
         constraints.add(constraint);
     }
 

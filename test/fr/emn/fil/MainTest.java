@@ -21,7 +21,7 @@ public class MainTest {
 
     @Test
     public void testComputeForbiddenRegion() throws Exception {
-        Domain domain = new Domain(10, 10);
+        Domain domain = new Domain();
 
         Constraint ri = new Constraint(3, 5);
         domain.add(ri);
@@ -66,7 +66,7 @@ public class MainTest {
 
     @Test
     public void testFindMinimum() throws Exception {
-        Domain domain = new Domain(10, 10);
+        Domain domain = new Domain();
 
         // contraintes placées arbitrairement
         Constraint c1 = new Constraint(1, 4, 2, 4, 2, 1);
