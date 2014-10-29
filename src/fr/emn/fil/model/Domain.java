@@ -29,11 +29,63 @@ public class Domain {
         return y;
     }
 
-    public void add(Constraint constraint) {
-        this.x = (this.x < constraint.getxMax()) ? constraint.getxMax() : this.x;
-        this.y = (this.y < constraint.getyMax()) ? constraint.getyMax() : this.y;
+    /**
+     * Méthode ajoutant une contrainte au domaine (modifiant les bornes si besoin)
+     * @param constraint
+     */
+    public void addConstraint(Constraint constraint) {
         constraints.add(constraint);
+        redefinirLimites();
     }
+
+    /**
+     * Méthode supprimant une contrainte au domaine (modifiant les bornes si besoin)
+     * @param constraint
+     */
+    public void removeConstraint(Constraint constraint){
+        constraints.remove(constraint);
+        redefinirLimites();
+    }
+
+    /**
+     * Redéfinit les limites x et y du domaines afin d'être optimal pour acceuillir toutes les contraintes
+     */
+    private void redefinirLimites() {
+        for(Constraint contrainte : constraints) {
+            this.x = (this.x < contrainte.getxMax()) ? contrainte.getxMax() : this.x;
+            this.y = (this.y < contrainte.getyMax()) ? contrainte.getyMax() : this.y;
+        }
+    }
+
+    /**
+     * Prend tous les rectangles du domaine et essaye de les replacer le plus à gauche possible
+     * @return nombre de rectangles déplacés
+     */
+    public int nonOverLapLeft(){
+        int bornesModifiees = 0;
+        try {
+            //Nous bouclons sur chaque rectangle du domaine
+            for (Constraint rectangle : constraints) {
+                    removeConstraint(rectangle);
+                    //Nous calculons l'emplacement minimum de ce rectangle
+                    Position newPosition = findMinimum(rectangle);
+                    // Si un minimum plus petit que le précédent a été trouvé
+                    if( newPosition != null && newPosition.getX() > rectangle.getxMin()){
+                        //Nous corrigeons la borne inférieur X de la contrainte
+                        Constraint contrainteModifiee = new Constraint(newPosition.getX(), rectangle.getxMin(),rectangle.getyMin(), rectangle.getyMax(), rectangle.getWidth(), rectangle.getHeight());
+                        addConstraint(contrainteModifiee);
+                        bornesModifiees++;
+                    }else{
+                        addConstraint(rectangle);
+                    }
+            }
+        } catch (Exception e) {
+             e.printStackTrace();
+        }
+        return bornesModifiees;
+    }
+
+
 
     /**
      * Permet de créer la liste des évènements (débuts et fins des forbidden régions)
@@ -206,4 +258,15 @@ public class Domain {
             return new ForbiddenRegion(xMin, xMax, yMin, yMax);
         }
     }
+
+    /**
+     * Getter des contraintes du domaine
+     *@return la liste des contraintes du domaine
+     */
+    public List<Constraint> getConstraints(){
+        return this.constraints;
+    }
+
+
+
 }

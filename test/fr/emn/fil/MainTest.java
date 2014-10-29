@@ -25,10 +25,10 @@ public class MainTest {
         Domain domain = new Domain();
 
         Constraint ri = new Constraint(3, 5);
-        domain.add(ri);
+        domain.addConstraint(ri);
 
         Constraint rj = new Constraint(6, 7, 7, 8, 3, 2);
-        domain.add(rj);
+        domain.addConstraint(rj);
 
         ForbiddenRegion forbiddenRegion = Domain.computeForbiddenRegion(rj, ri.getWidth(), ri.getHeight());
 
@@ -46,19 +46,19 @@ public class MainTest {
 
         // contraintes placées arbitrairement
         Constraint c1 = new Constraint(0, 5, 2, 2, 4, 4);
-        domain.add(c1);
+        domain.addConstraint(c1);
 
         Constraint c2 = new Constraint(1, 1, 0, 0, 2, 1);
-        domain.add(c2);
+        domain.addConstraint(c2);
 
         Constraint c3 = new Constraint(2, 2, 2, 2, 1, 4);
-        domain.add(c3);
+        domain.addConstraint(c3);
 
         Constraint c4 = new Constraint(3, 3, 0, 0, 3, 2);
-        domain.add(c4);
+        domain.addConstraint(c4);
 
         Constraint c5 = new Constraint(4, 8, 2, 3, 2, 2);
-        domain.add(c5);
+        domain.addConstraint(c5);
 
         // constrainte à placer par rapport aux autres
         Constraint c6 = new Constraint(0, 9, 2, 5, 3, 1);
@@ -72,16 +72,16 @@ public class MainTest {
 
         // contraintes placées arbitrairement
         Constraint c1 = new Constraint(1, 4, 2, 4, 2, 1);
-        domain.add(c1);
+        domain.addConstraint(c1);
 
         Constraint c2 = new Constraint(4, 4, 6, 6, 3, 1);
-        domain.add(c2);
+        domain.addConstraint(c2);
 
         Constraint c3 = new Constraint(2, 4, 8, 9, 1, 1);
-        domain.add(c3);
+        domain.addConstraint(c3);
 
         Constraint c4 = new Constraint(7, 7, 1, 1, 1, 3);
-        domain.add(c4);
+        domain.addConstraint(c4);
 
         // constrainte à placer par rapport aux autres
         Constraint c5 = new Constraint(1, 8, 1, 8, 5, 4);
@@ -89,4 +89,33 @@ public class MainTest {
 
         Assert.assertThat(domainMinimum, CoreMatchers.anyOf(CoreMatchers.is(new Position(3, 7)), CoreMatchers.is(new Position(3, 8))));
     }
+
+    @Test
+    public void testNonOverLapLeft() throws Exception {
+        Domain domain = new Domain();
+
+        // contraintes placées arbitrairement
+        Constraint c1 = new Constraint(0, 5, 2, 2, 4, 4);
+        domain.addConstraint(c1);
+
+        Constraint c2 = new Constraint(1, 1, 0, 0, 2, 1);
+        domain.addConstraint(c2);
+
+        Constraint c3 = new Constraint(2, 2, 2, 2, 1, 4);
+        domain.addConstraint(c3);
+
+        Constraint c4 = new Constraint(3, 3, 0, 0, 3, 2);
+        domain.addConstraint(c4);
+
+        Constraint c5 = new Constraint(4, 8, 2, 3, 2, 2);
+        domain.addConstraint(c5);
+
+        Constraint c6 = new Constraint(0, 9, 2, 5, 3, 1);
+        domain.addConstraint(c6);
+
+        domain.nonOverLapLeft();
+
+        Assert.assertEquals(domain.getConstraints().get(domain.getConstraints().size()-1).getxMin(), 4);
+    }
+
 } 
