@@ -49,15 +49,12 @@ public class Domain {
         List<Event> qEvent = new ArrayList<Event>();
 
         //Nous cherchons à trouver le minimum dans le domaine possible de la contrainte
-        for ( int delta = rectangle.getxMin(); delta < rectangle.getxMax(); delta++ ) {
-            //Nous faisons une itération sur les ForbiddenRegions
-            for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
-                //Si il y un début ou fin de forbidden région sur ce delta, alors nous créons un Event correspondant
-                if( delta == forbiddenRegion.getxMin() || delta == forbiddenRegion.getxMax()){
-                    Event event = new Event(delta, forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
-                    qEvent.add(event);
-                }
-            }
+        for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
+            //Si il y un début ou fin de forbidden région sur ce delta, alors nous créons un Event correspondant
+            Event eventMin = new Event(forbiddenRegion.getxMin(), forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
+            qEvent.add(eventMin);
+            Event eventMax = new Event(forbiddenRegion.getxMax(), forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
+            qEvent.add(eventMax);
         }
 
         //A présent que les évènements sont définis, nous cherchons à trouver l'emplacement libre minimum
@@ -86,10 +83,10 @@ public class Domain {
             for (int i = 0; i < pStatus.length; i++) {
                 Integer pStatu = pStatus[i];
                 if ( pStatu.equals(0) ) {
-                    availableY.add(i);
+                    availableY.add(i + yMin);
                 }
             }
-        } while (availableY.size() <= 0 || delta < this.x);
+        } while (availableY.size() <= 0 && delta < this.x);
 
         //On random la valeur de y par rapport aux y disponibles
         if ( availableY.size() == 0 ) {
@@ -160,7 +157,7 @@ public class Domain {
             int maxX = events.get(i+1).getPositionX();
 
             if ( delta <= minX || delta <= maxX ) {
-                for ( int y = events.get(i).getyMin(); y < events.get(i).getyMax(); y++ ) {
+                for ( int y = events.get(i).getyMin(); y <= events.get(i).getyMax(); y++ ) {
                     pStatus[y - yMin] += 1;
                 }
             }
