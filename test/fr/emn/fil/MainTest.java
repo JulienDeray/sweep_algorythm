@@ -39,10 +39,9 @@ public class MainTest {
         Assert.assertEquals(expectedConstraint.getyMin(), forbiddenRegion.getyMin());
     }
 
-    // Pour plus tard, une fois que l'overlap sera codé
-    /*@Test
+    @Test
     public void testInitDomain() throws Exception {
-        Domain domain = new Domain(10, 10);
+        Domain domain = new Domain();
 
         // contraintes placées arbitrairement
         Constraint c1 = new Constraint(0, 5, 2, 2, 4, 4);
@@ -60,11 +59,18 @@ public class MainTest {
         Constraint c5 = new Constraint(4, 8, 2, 3, 2, 2);
         domain.addConstraint(c5);
 
-        // constrainte à placer par rapport aux autres
         Constraint c6 = new Constraint(0, 9, 2, 5, 3, 1);
-        Position domainMinimum = domain.findMinimum(c6);
-        Assert.assertEquals(new Position(7, 2), domainMinimum);
-    }*/
+        domain.addConstraint(c6);
+
+        domain.nonOverLapLeft();
+
+        //R1 : la borne xMin passe de 0 à 3
+        Assert.assertEquals(3,domain.getConstraints().get(0).getxMin());
+        //R5 : la borne xMin passe de 4 à 7
+        Assert.assertEquals(7,domain.getConstraints().get(domain.getConstraints().size()-1).getxMin());
+        //R6 : la borne xMin passe de 0 à 7
+        Assert.assertEquals(7,domain.getConstraints().get(domain.getConstraints().size()-2).getxMin());
+    }
 
     @Test
     public void testFindMinimum() throws Exception {
@@ -91,7 +97,7 @@ public class MainTest {
     }
 
     @Test
-    public void testNonOverLapLeft() throws Exception {
+     public void testNonOverLapLeft() throws Exception {
         Domain domain = new Domain();
 
         // contraintes placées arbitrairement
@@ -115,7 +121,28 @@ public class MainTest {
 
         domain.nonOverLapLeft();
 
-        Assert.assertEquals(domain.getConstraints().get(domain.getConstraints().size()-1).getxMin(), 4);
+        Assert.assertEquals(8,domain.getConstraints().get(domain.getConstraints().size()-1).getxMin());
     }
+
+    @Test
+    public void testNonOverLapLeft2() throws Exception {
+        Domain domain = new Domain();
+
+        // contraintes placées arbitrairement
+        Constraint c1 = new Constraint(0, 3, 1, 3, 3, 3);
+        domain.addConstraint(c1);
+
+        Constraint c2 = new Constraint(4, 6, 0, 4, 3, 2);
+        domain.addConstraint(c2);
+
+        Constraint c3 = new Constraint(0, 8, 0, 4, 2, 2);
+        domain.addConstraint(c3);
+
+        // On recalcule les bornes
+        domain.nonOverLapLeft();
+
+        Assert.assertEquals(3,domain.getConstraints().get(domain.getConstraints().size()-1).getxMin());
+    }
+
 
 } 

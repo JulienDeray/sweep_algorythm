@@ -1,4 +1,6 @@
 /**
+ * Contraintes, zones (délimitées en abcisse et ordonnée) où placer des rectangles de largeur width et de hauteur height.
+ *
  * Created with IntelliJ IDEA.
  * Autor: julienderay
  * Company : SERLI
@@ -8,6 +10,8 @@
 package fr.emn.fil.model;
 
 public class Constraint {
+
+    //Arguments
     private int xMin;
     private int xMax;
 
@@ -17,6 +21,7 @@ public class Constraint {
     private int height;
     private int width;
 
+    //Constructeurs
     public Constraint(int xMin, int xMax, int yMin, int yMax, int width, int height) {
         this.xMin = xMin;
         this.xMax = xMax;
@@ -31,9 +36,11 @@ public class Constraint {
         this.width = width;
     }
 
-    public int getxMin() {
-        return xMin;
-    }
+    // Getters - Setters
+
+    public int getxMin() { return xMin; }
+
+    public void setxMin(int x) { this.xMin = x; }
 
     public int getxMax() {
         return xMax;
@@ -54,6 +61,8 @@ public class Constraint {
     public int getWidth() {
         return width;
     }
+
+    // Méthodes
 
     @Override
     public String toString() {

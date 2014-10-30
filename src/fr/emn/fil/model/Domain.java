@@ -1,4 +1,5 @@
 /**
+ * Domaine, plan à deux dimensions de taille (x,y) possédant des contraintes.
  * Created with IntelliJ IDEA.
  * Autor: julienderay
  * Company : SERLI
@@ -36,6 +37,7 @@ public class Domain {
     public void addConstraint(Constraint constraint) {
         constraints.add(constraint);
         this.x = (this.x < constraint.getxMax()) ? constraint.getxMax() : this.x;
+
         this.y = (this.y < constraint.getyMax()) ? constraint.getyMax() : this.y;
     }
 
@@ -67,17 +69,13 @@ public class Domain {
         try {
             //Nous bouclons sur chaque rectangle du domaine
             for (Constraint rectangle : constraints) {
-                    removeConstraint(rectangle);
                     //Nous calculons l'emplacement minimum de ce rectangle
                     Position newPosition = findMinimum(rectangle);
                     // Si un minimum plus petit que le précédent a été trouvé
                     if( newPosition != null && newPosition.getX() > rectangle.getxMin()){
                         //Nous corrigeons la borne inférieur X de la contrainte
-                        Constraint contrainteModifiee = new Constraint(newPosition.getX(), rectangle.getxMin(),rectangle.getyMin(), rectangle.getyMax(), rectangle.getWidth(), rectangle.getHeight());
-                        addConstraint(contrainteModifiee);
-                        bornesModifiees++;
-                    }else{
-                        addConstraint(rectangle);
+                       rectangle.setxMin(newPosition.getX());
+                       bornesModifiees++;
                     }
             }
         } catch (Exception e) {
@@ -85,7 +83,6 @@ public class Domain {
         }
         return bornesModifiees;
     }
-
 
 
     /**
@@ -97,49 +94,60 @@ public class Domain {
      */
     public Position findMinimum(Constraint rectangle) throws Exception {
         // Liste des régions interdites du rectangle
-        List<ForbiddenRegion> forbiddenRegions = getForbiddenRegionsFor( rectangle );
+        List<ForbiddenRegion> forbiddenRegions = getForbiddenRegionsFor(rectangle);
         // Liste qui contient les évènements
         List<Event> qEvent = new ArrayList<Event>();
 
-        //Nous cherchons à trouver le minimum dans le domaine possible de la contrainte
-        for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
-            //Si il y un début ou fin de forbidden région sur ce delta, alors nous créons un Event correspondant
-            Event eventMin = new Event(forbiddenRegion.getxMin(), forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
-            qEvent.add(eventMin);
-            Event eventMax = new Event(forbiddenRegion.getxMax(), forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
-            qEvent.add(eventMax);
-        }
-
-        //A présent que les évènements sont définis, nous cherchons à trouver l'emplacement libre minimum
-        // Vecteur associé à une colonne, indiquant les cases bloquées par des régions interdites
-        Integer[] pStatus;
         //La coordonnée en abcisse du minimum
         Integer delta = -1;
+
         //Liste des cases disponibles dans la colonne delta
         List<Integer> availableY = new ArrayList<>();
-        //Nous parcourons chaque colonne, puis chaqaue case pour trouver les emplacements libres
 
-        int yMin = getMinY(forbiddenRegions);
-        int yMax = getMaxY(forbiddenRegions);
-
-        do {
-            //Initialise chaque case de la colonne à 0
-            pStatus = makePstatus(yMin, yMax, forbiddenRegions);
-
-            //Nous allons à la colonne suivante
-            delta++;
-
-            //Nous remplissons le pStatus pour connaître les emplacements libres de la colonne
-            pStatus = handleEvent(yMin, delta, pStatus, qEvent);
-
-            //Nous vérifions dans chaque case du PStatus s'il y a un/des emplacements
-            for (int i = 0; i < pStatus.length; i++) {
-                Integer pStatu = pStatus[i];
-                if ( pStatu.equals(0) ) {
-                    availableY.add(i + yMin);
-                }
+        //Dans le cas où il n'y a pas de forbidden régions
+        if (forbiddenRegions.isEmpty()) {
+            for (int i = rectangle.getyMin(); i < rectangle.getyMax()+1 ; i++) {
+                availableY.add(i);
             }
-        } while (availableY.size() <= 0 && delta < this.x);
+            delta = rectangle.getxMin();
+        }else{
+            //Nous cherchons à trouver le minimum dans le domaine possible de la contrainte
+            for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
+                //Si il y un début ou fin de forbidden région sur ce delta, alors nous créons un Event correspondant
+                Event eventMin = new Event(forbiddenRegion.getxMin(), forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
+                qEvent.add(eventMin);
+                Event eventMax = new Event(forbiddenRegion.getxMax(), forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
+                qEvent.add(eventMax);
+            }
+
+            //A présent que les évènements sont définis, nous cherchons à trouver l'emplacement libre minimum
+            // Vecteur associé à une colonne, indiquant les cases bloquées par des régions interdites
+            Integer[] pStatus;
+
+            //Nous parcourons chaque colonne, puis chaqaue case pour trouver les emplacements libres
+
+            int yMin = getMinY(forbiddenRegions);
+            int yMax = getMaxY(forbiddenRegions);
+
+            do {
+                //Initialise chaque case de la colonne à 0
+                pStatus = makePstatus(yMin, yMax, forbiddenRegions);
+
+                //Nous allons à la colonne suivante
+                delta++;
+
+                //Nous remplissons le pStatus pour connaître les emplacements libres de la colonne
+                pStatus = handleEvent(yMin, delta, pStatus, qEvent);
+
+                //Nous vérifions dans chaque case du PStatus s'il y a un/des emplacements
+                for (int i = 0; i < pStatus.length; i++) {
+                    Integer pStatu = pStatus[i];
+                    if (pStatu.equals(0)) {
+                        availableY.add(i + yMin);
+                    }
+                }
+            } while (availableY.size() <= 0 && delta < this.x);
+        }
 
         //On random la valeur de y par rapport aux y disponibles
         if ( availableY.size() == 0 ) {
@@ -153,6 +161,11 @@ public class Domain {
         }
     }
 
+    /**
+     * Renvoit le plus petit y des forbidden régions
+     * @param forbiddenRegions
+     * @return
+     */
     private static int getMinY(List<ForbiddenRegion> forbiddenRegions) {
         int minY = forbiddenRegions.get(0).getyMin();
         for (int i = 1; i < forbiddenRegions.size(); i++) {
@@ -164,6 +177,11 @@ public class Domain {
         return minY;
     }
 
+    /**
+     * Renvoit le plus grand x des forbidden régions
+     * @param forbiddenRegions
+     * @return
+     */
     private static int getMaxY(List<ForbiddenRegion> forbiddenRegions) {
         int maxY = forbiddenRegions.get(0).getyMax();
         for (int i = 1; i < forbiddenRegions.size(); i++) {
@@ -175,6 +193,11 @@ public class Domain {
         return maxY;
     }
 
+    /**
+     * Renvoit un entier au hasard parmis une liste d'entiers
+     * @param availablesY liste d'integer
+     * @return
+     */
     private int randomY(List<Integer> availablesY) {
         Random ran = new Random();
         return availablesY.get( ran.nextInt(availablesY.size() ) );
@@ -228,9 +251,11 @@ public class Domain {
         List<ForbiddenRegion> forbiddenRegions = new ArrayList<>();
 
         for (Constraint c : constraints) {
-            ForbiddenRegion forbiddenRegion = computeForbiddenRegion(c, rectangle.getWidth(), rectangle.getHeight());
-            if ( forbiddenRegion != null ) {
-                forbiddenRegions.add( forbiddenRegion );
+            if(!c.equals(rectangle)) {
+                ForbiddenRegion forbiddenRegion = computeForbiddenRegion(c, rectangle.getWidth(), rectangle.getHeight());
+                if (forbiddenRegion != null) {
+                    forbiddenRegions.add(forbiddenRegion);
+                }
             }
         }
 
