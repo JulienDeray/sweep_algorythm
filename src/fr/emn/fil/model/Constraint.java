@@ -64,6 +64,10 @@ public class Constraint {
 
     // Méthodes
 
+    /**
+     * Retourne le détail des arguments de la contrainte sous forme de String
+     * @return
+     */
     @Override
     public String toString() {
         return "Rectangle{" +
@@ -71,11 +75,16 @@ public class Constraint {
                 ", xMax=" + xMax +
                 ", yMin=" + yMin +
                 ", yMax=" + yMax +
-                ", height=" + height +
                 ", width=" + width +
+                ", height=" + height +
                 '}';
     }
 
+    /**
+     * Teste l'égalité de deux contraintes/rectangles
+     * @param o la contrainte à comparer
+     * @return
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

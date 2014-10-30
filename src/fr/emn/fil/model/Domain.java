@@ -203,19 +203,26 @@ public class Domain {
         return availablesY.get( ran.nextInt(availablesY.size() ) );
     }
 
+    /**
+     * Construit et initialise le Pstatus, tableau indiquant les emplacements libres ou non d'une colonne
+     * @param yMin
+     * @param yMax
+     * @param forbiddenRegions
+     * @return
+     */
     private Integer[] makePstatus(int yMin, int yMax, List<ForbiddenRegion> forbiddenRegions) {
-        Integer[] qEvent = new Integer[yMax - yMin + 1];
+        Integer[] pStatus = new Integer[yMax - yMin + 1];
 
-        for (int y = 0; y < qEvent.length; y++) {
-            qEvent[y] = 1;
+        for (int y = 0; y < pStatus.length; y++) {
+            pStatus[y] = 1;
         }
         for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
             for ( int y = forbiddenRegion.getyMin(); y < forbiddenRegion.getyMax() + 1; y++ ) {
-                qEvent[y - yMin] = 0;
+                pStatus[y - yMin] = 0;
             }
         }
 
-        return qEvent;
+        return pStatus;
     }
 
     /**
@@ -232,7 +239,7 @@ public class Domain {
             int minX = events.get(i).getPositionX();
             int maxX = events.get(i+1).getPositionX();
 
-            if ( delta <= minX || delta <= maxX ) {
+            if ( delta <= minX || delta <= maxX ) { // delta >= minX && delta <= maxX  ??
                 for ( int y = events.get(i).getyMin(); y <= events.get(i).getyMax(); y++ ) {
                     pStatus[y - yMin] += 1;
                 }
