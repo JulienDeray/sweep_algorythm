@@ -33,6 +33,8 @@ On place un rectangle chacun son tour en calculant le minimum possible , avec ce
 Ensuite on exécute le sweep algorythme en boucle (recalcul des forbidden region, replacement) jusqu'à que ça ne change plus.
 
 
-
+Questions au prof :
+-Pstatus de taille variable? au cas où si des forbidden régions allant dans le négatif)
+-Axes x et y variables ? Ajuster a l'ajout/suppression de contrainte
 
 

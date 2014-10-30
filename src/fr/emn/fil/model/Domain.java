@@ -35,7 +35,8 @@ public class Domain {
      */
     public void addConstraint(Constraint constraint) {
         constraints.add(constraint);
-        redefinirLimites();
+        this.x = (this.x < constraint.getxMax()) ? constraint.getxMax() : this.x;
+        this.y = (this.y < constraint.getyMax()) ? constraint.getyMax() : this.y;
     }
 
     /**
