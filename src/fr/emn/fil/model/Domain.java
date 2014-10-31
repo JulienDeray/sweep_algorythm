@@ -66,20 +66,16 @@ public class Domain {
      */
     public int nonOverLapLeft(){
         int bornesModifiees = 0;
-        try {
-            //Nous bouclons sur chaque rectangle du domaine
-            for (Constraint rectangle : constraints) {
-                    //Nous calculons l'emplacement minimum de ce rectangle
-                    Position newPosition = findMinimum(rectangle);
-                    // Si un minimum plus petit que le précédent a été trouvé
-                    if( newPosition != null && newPosition.getX() > rectangle.getxMin()){
-                        //Nous corrigeons la borne inférieur X de la contrainte
-                       rectangle.setxMin(newPosition.getX());
-                       bornesModifiees++;
-                    }
-            }
-        } catch (Exception e) {
-             e.printStackTrace();
+        //Nous bouclons sur chaque rectangle du domaine
+        for (Constraint rectangle : constraints) {
+                //Nous calculons l'emplacement minimum de ce rectangle
+                Position newPosition = findMinimum(rectangle);
+                // Si un minimum plus petit que le précédent a été trouvé
+                if( newPosition != null && newPosition.getX() > rectangle.getxMin()){
+                    //Nous corrigeons la borne inférieur X de la contrainte
+                   rectangle.setxMin(newPosition.getX());
+                   bornesModifiees++;
+                }
         }
         return bornesModifiees;
     }
@@ -90,16 +86,15 @@ public class Domain {
      *
      * @param rectangle
      * @return la liste d'évènements
-     * @throws Exception
      */
-    public Position findMinimum(Constraint rectangle) throws Exception {
+    public Position findMinimum(Constraint rectangle) {
         // Liste des régions interdites du rectangle
         List<ForbiddenRegion> forbiddenRegions = getForbiddenRegionsFor(rectangle);
         // Liste qui contient les évènements
-        List<Event> qEvent = new ArrayList<Event>();
+        List<Event> qEvent = new ArrayList<>();
 
         //La coordonnée en abcisse du minimum
-        Integer delta = -1;
+        Integer delta = rectangle.getxMin() - 1;
 
         //Liste des cases disponibles dans la colonne delta
         List<Integer> availableY = new ArrayList<>();
@@ -126,27 +121,27 @@ public class Domain {
 
             //Nous parcourons chaque colonne, puis chaqaue case pour trouver les emplacements libres
 
-            int yMin = getMinY(forbiddenRegions);
-            int yMax = getMaxY(forbiddenRegions);
+            int yMinOfFR = getMinY(forbiddenRegions, constraints);
+            int yMaxOfFR = getMaxY(forbiddenRegions, constraints);
 
             do {
                 //Initialise chaque case de la colonne à 0
-                pStatus = makePstatus(yMin, yMax, forbiddenRegions);
+                pStatus = makePstatus(yMinOfFR, yMaxOfFR, forbiddenRegions);
 
                 //Nous allons à la colonne suivante
                 delta++;
 
                 //Nous remplissons le pStatus pour connaître les emplacements libres de la colonne
-                pStatus = handleEvent(yMin, delta, pStatus, qEvent);
+                pStatus = handleEvent(yMinOfFR, delta, pStatus, qEvent);
 
                 //Nous vérifions dans chaque case du PStatus s'il y a un/des emplacements
                 for (int i = 0; i < pStatus.length; i++) {
                     Integer pStatu = pStatus[i];
-                    if (pStatu.equals(0)) {
-                        availableY.add(i + yMin);
+                    if (pStatu.equals(0) && i + yMinOfFR >= rectangle.getyMin() && i + yMinOfFR <= rectangle.getyMax()) {
+                        availableY.add(i + yMinOfFR);
                     }
                 }
-            } while (availableY.size() <= 0 && delta < this.x);
+            } while (availableY.size() <= 0 && delta <= rectangle.getxMax());
         }
 
         //On random la valeur de y par rapport aux y disponibles
@@ -164,12 +159,19 @@ public class Domain {
     /**
      * Renvoit le plus petit y des forbidden régions
      * @param forbiddenRegions
+     * @param constraints
      * @return
      */
-    private static int getMinY(List<ForbiddenRegion> forbiddenRegions) {
+    private static int getMinY(List<ForbiddenRegion> forbiddenRegions, List<Constraint> constraints) {
         int minY = forbiddenRegions.get(0).getyMin();
-        for (int i = 1; i < forbiddenRegions.size(); i++) {
-            int min = forbiddenRegions.get(i).getyMin();
+        for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
+            int min = forbiddenRegion.getyMin();
+            if ( min < minY ) {
+                minY = min;
+            }
+        }
+        for (Constraint constraint : constraints) {
+            int min = constraint.getyMin();
             if ( min < minY ) {
                 minY = min;
             }
@@ -180,12 +182,19 @@ public class Domain {
     /**
      * Renvoit le plus grand x des forbidden régions
      * @param forbiddenRegions
+     * @param constraints
      * @return
      */
-    private static int getMaxY(List<ForbiddenRegion> forbiddenRegions) {
+    private static int getMaxY(List<ForbiddenRegion> forbiddenRegions, List<Constraint> constraints) {
         int maxY = forbiddenRegions.get(0).getyMax();
-        for (int i = 1; i < forbiddenRegions.size(); i++) {
-            int max = forbiddenRegions.get(i).getyMax();
+        for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
+            int max = forbiddenRegion.getyMax();
+            if ( max > maxY ) {
+                maxY = max;
+            }
+        }
+        for (Constraint constraint : constraints) {
+            int max = constraint.getyMax();
             if ( max > maxY ) {
                 maxY = max;
             }
@@ -205,20 +214,20 @@ public class Domain {
 
     /**
      * Construit et initialise le Pstatus, tableau indiquant les emplacements libres ou non d'une colonne
-     * @param yMin
-     * @param yMax
+     * @param yMinOfFR
+     * @param yMaxOfFR
      * @param forbiddenRegions
      * @return
      */
-    private Integer[] makePstatus(int yMin, int yMax, List<ForbiddenRegion> forbiddenRegions) {
-        Integer[] pStatus = new Integer[yMax - yMin + 1];
+    private Integer[] makePstatus(int yMinOfFR, int yMaxOfFR, List<ForbiddenRegion> forbiddenRegions) {
+        Integer[] pStatus = new Integer[yMaxOfFR - yMinOfFR + 1];
 
         for (int y = 0; y < pStatus.length; y++) {
             pStatus[y] = 1;
         }
         for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
-            for ( int y = forbiddenRegion.getyMin(); y < forbiddenRegion.getyMax() + 1; y++ ) {
-                pStatus[y - yMin] = 0;
+            for ( int y = forbiddenRegion.getyMin(); y <= forbiddenRegion.getyMax(); y++ ) {
+                pStatus[y - yMinOfFR] = 0;
             }
         }
 
@@ -232,14 +241,13 @@ public class Domain {
      * @param pStatus où indiquer les emplacements libres ou occupés
      * @param events les évènements de début et fins de forbidden régions
      * @return le pStatus, contient les emplacements libres ou occupés de la colonne delta
-     * @throws Exception
      */
-    public Integer[] handleEvent(int yMin, Integer delta, Integer[] pStatus, List<Event> events) throws Exception {
+    public Integer[] handleEvent(int yMin, Integer delta, Integer[] pStatus, List<Event> events) {
         for (int i = 0; i < events.size() - 1; i += 2) {
             int minX = events.get(i).getPositionX();
             int maxX = events.get(i+1).getPositionX();
 
-            if ( delta <= minX || delta <= maxX ) { // delta >= minX && delta <= maxX  ??
+            if ( delta >= minX && delta <= maxX ) {
                 for ( int y = events.get(i).getyMin(); y <= events.get(i).getyMax(); y++ ) {
                     pStatus[y - yMin] += 1;
                 }
