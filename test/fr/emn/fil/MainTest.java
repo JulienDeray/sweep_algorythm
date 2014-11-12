@@ -58,7 +58,7 @@ public class MainTest {
 
         // constrainte à placer par rapport aux autres
         Constraint c5 = new Constraint(1, 8, 1, 8, 5, 4);
-        Position domainMinimum = domain.findMinimum(c5);
+        Position domainMinimum = domain.findMinimumLeft(c5);
 
         Assert.assertThat(domainMinimum, CoreMatchers.anyOf(CoreMatchers.is(new Position(3, 7)), CoreMatchers.is(new Position(3, 8))));
     }
@@ -116,4 +116,4 @@ public class MainTest {
         //R6 : la borne xMin passe de 0 à 7
         Assert.assertEquals(7,domain.getConstraints().get(domain.getConstraints().size()-2).getxMin());
     }
-} 
+}

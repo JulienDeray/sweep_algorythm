@@ -61,7 +61,7 @@ public class Domain {
     }
 
     /**
-     * Prend tous les rectangles du domaine et essaye de les replacer le plus à gauche possible
+     * Réévalue la borne xMin de chaque rectangle du domaine
      * @return nombre de rectangles déplacés
      */
     public int nonOverLapLeft(){
@@ -69,7 +69,7 @@ public class Domain {
         //Nous bouclons sur chaque rectangle du domaine
         for (Constraint rectangle : constraints) {
                 //Nous calculons l'emplacement minimum de ce rectangle
-                Position newPosition = findMinimum(rectangle);
+                Position newPosition = findMinimumLeft(rectangle);
                 // Si un minimum plus petit que le précédent a été trouvé
                 if( newPosition != null && newPosition.getX() > rectangle.getxMin()){
                     //Nous corrigeons la borne inférieur X de la contrainte
@@ -82,12 +82,33 @@ public class Domain {
 
 
     /**
-     * Permet de créer la liste des évènements (débuts et fins des forbidden régions)
+     * Réévalue la borne xMax de chaque rectangle du domaine
+     * @return nombre de rectangles déplacés
+     */
+    public int nonOverLapRight(){
+        int bornesModifiees = 0;
+        //Nous bouclons sur chaque rectangle du domaine
+        for (Constraint rectangle : constraints) {
+            //Nous calculons l'emplacement maximum de ce rectangle
+            Position newPosition = findMinimumRight(rectangle);
+            // Si un maximum plus petit que le précédent a été trouvé
+            if( newPosition != null && newPosition.getX() < rectangle.getxMax()){
+                //Nous corrigeons la borne inférieur X de la contrainte
+                rectangle.setxMax(newPosition.getX());
+                bornesModifiees++;
+            }
+        }
+        return bornesModifiees;
+    }
+
+
+    /**
+     * Trouver la position minimum en Abcisse
      *
      * @param rectangle
      * @return la liste d'évènements
      */
-    public Position findMinimum(Constraint rectangle) {
+    public Position findMinimumLeft(Constraint rectangle) {
         // Liste des régions interdites du rectangle
         List<ForbiddenRegion> forbiddenRegions = getForbiddenRegionsFor(rectangle);
         // Liste qui contient les évènements
@@ -119,8 +140,8 @@ public class Domain {
             // Vecteur associé à une colonne, indiquant les cases bloquées par des régions interdites
             Integer[] pStatus;
 
-            //Nous parcourons chaque colonne, puis chaqaue case pour trouver les emplacements libres
-
+            //Nous parcourons chaque colonne, puis chaque case pour trouver les emplacements libres
+            //Calcul des zones limites du Pstatus
             int yMinOfFR = getMinY(forbiddenRegions, constraints);
             int yMaxOfFR = getMaxY(forbiddenRegions, constraints);
 
@@ -132,7 +153,7 @@ public class Domain {
                 delta++;
 
                 //Nous remplissons le pStatus pour connaître les emplacements libres de la colonne
-                pStatus = handleEvent(yMinOfFR, delta, pStatus, qEvent);
+                pStatus = handleEvent(yMinOfFR, delta, pStatus, qEvent, true);
 
                 //Nous vérifions dans chaque case du PStatus s'il y a un/des emplacements
                 for (int i = 0; i < pStatus.length; i++) {
@@ -155,6 +176,87 @@ public class Domain {
             return new Position(delta, randomY(availableY));
         }
     }
+
+    /**
+     * Trouver la position maximum en Abcisse
+     *
+     * @param rectangle
+     * @return la liste d'évènements
+     */
+    public Position findMinimumRight(Constraint rectangle) {
+        // Liste des régions interdites du rectangle
+        List<ForbiddenRegion> forbiddenRegions = getForbiddenRegionsFor(rectangle);
+        // Liste qui contient les évènements
+        List<Event> qEvent = new ArrayList<>();
+
+        //La coordonnée en abcisse du maximum
+        Integer delta = rectangle.getxMax() + 1;
+
+        //Liste des cases disponibles dans la colonne delta
+        List<Integer> availableY = new ArrayList<>();
+
+        //Dans le cas où il n'y a pas de forbidden régions
+        if (forbiddenRegions.isEmpty()) {
+            for (int i = rectangle.getyMin(); i < rectangle.getyMax()+1 ; i++) {
+                availableY.add(i);
+            }
+            delta = rectangle.getxMax();
+        }else{
+            //Nous cherchons à trouver le minimum à droite dans le domaine possible de la contrainte
+            for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
+                //Si il y un début ou fin de forbidden région sur ce delta, alors nous créons un Event correspondant
+                Event eventMin = new Event(forbiddenRegion.getxMin(), forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
+                qEvent.add(eventMin);
+                Event eventMax = new Event(forbiddenRegion.getxMax(), forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
+                qEvent.add(eventMax);
+            }
+
+            //Nous retournons la queue des events
+            qEvent = reverse(qEvent);
+
+            //A présent que les évènements sont définis, nous cherchons à trouver l'emplacement libre minimum
+            // Vecteur associé à une colonne, indiquant les cases bloquées par des régions interdites
+            Integer[] pStatus;
+
+            //Nous parcourons chaque colonne, puis chaque case pour trouver les emplacements libres
+
+            //Calcul des zones limites du Pstatus
+            int yMinOfFR = getMinY(forbiddenRegions, constraints);
+            int yMaxOfFR = getMaxY(forbiddenRegions, constraints);
+
+            do {
+                //Initialise chaque case de la colonne à 0
+                pStatus = makePstatus(yMinOfFR, yMaxOfFR, forbiddenRegions);
+
+                //Nous allons à la colonne suivante
+                delta--;
+
+                //Nous remplissons le pStatus pour connaître les emplacements libres de la colonne
+                pStatus = handleEvent(yMinOfFR, delta, pStatus, qEvent, false);
+
+                //Nous vérifions dans chaque case du PStatus s'il y a un/des emplacements
+                for (int i = 0; i < pStatus.length; i++) {
+                    Integer pStatu = pStatus[i];
+                    if (pStatu.equals(0) && i + yMinOfFR >= rectangle.getyMin() && i + yMinOfFR <= rectangle.getyMax()) {
+                        availableY.add(i + yMinOfFR);
+                    }
+                }
+            } while (availableY.size() <= 0 && delta <= rectangle.getxMax());
+        }
+
+        //On random la valeur de y par rapport aux y disponibles
+        if ( availableY.size() == 0 ) {
+            return null;
+        }
+        else if ( availableY.size() == 1) {
+            return new Position(delta, availableY.get(0));
+        }
+        else {
+            return new Position(delta, randomY(availableY));
+        }
+    }
+
+
 
     /**
      * Renvoit le plus petit y des forbidden régions
@@ -214,9 +316,9 @@ public class Domain {
 
     /**
      * Construit et initialise le Pstatus, tableau indiquant les emplacements libres ou non d'une colonne
-     * @param yMinOfFR
-     * @param yMaxOfFR
-     * @param forbiddenRegions
+     * @param yMinOfFR le minimum en y entre toutes les régions interdites
+     * @param yMaxOfFR le maximum en y entre toutes les régions interdites
+     * @param forbiddenRegions la liste des régions interdites
      * @return
      */
     private Integer[] makePstatus(int yMinOfFR, int yMaxOfFR, List<ForbiddenRegion> forbiddenRegions) {
@@ -240,12 +342,20 @@ public class Domain {
      * @param delta la colonne à étudier
      * @param pStatus où indiquer les emplacements libres ou occupés
      * @param events les évènements de début et fins de forbidden régions
+    * @param isMin true pour un minimum, false pour un maximum
      * @return le pStatus, contient les emplacements libres ou occupés de la colonne delta
      */
-    public Integer[] handleEvent(int yMin, Integer delta, Integer[] pStatus, List<Event> events) {
+    public Integer[] handleEvent(int yMin, Integer delta, Integer[] pStatus, List<Event> events, boolean isMin) {
         for (int i = 0; i < events.size() - 1; i += 2) {
-            int minX = events.get(i).getPositionX();
-            int maxX = events.get(i+1).getPositionX();
+            int minX = 0;
+            int maxX = 0;
+            if(isMin){
+               minX = events.get(i).getPositionX();
+               maxX = events.get(i+1).getPositionX();
+            }else {
+                maxX = events.get(i).getPositionX();
+                minX = events.get(i + 1).getPositionX();
+            }
 
             if ( delta >= minX && delta <= maxX ) {
                 for ( int y = events.get(i).getyMin(); y <= events.get(i).getyMax(); y++ ) {
@@ -308,6 +418,18 @@ public class Domain {
         return this.constraints;
     }
 
-
+    /**
+     * Retourne la liste donnée en paramètre
+     * @param list  liste à retourner
+     * @return la liste retournée
+     */
+    public List<Event> reverse(List<Event> list) {
+        if(list.size() > 1) {
+            Event value = list.remove(0);
+            reverse(list);
+            list.add(value);
+        }
+        return list;
+    }
 
 }

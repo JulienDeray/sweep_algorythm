@@ -46,13 +46,19 @@ public class Constraint {
         return xMax;
     }
 
+    public void setxMax(int x) { this.xMax = x; }
+
     public int getyMin() {
         return yMin;
     }
 
+    public void setyMin(int y) { this.yMin = y; }
+
     public int getyMax() {
         return yMax;
     }
+
+    public void setyMax(int y) { this.yMax = y; }
 
     public int getHeight() {
         return height;
@@ -66,7 +72,7 @@ public class Constraint {
 
     /**
      * Retourne le détail des arguments de la contrainte sous forme de String
-     * @return
+     * @return strinf du détail
      */
     @Override
     public String toString() {
@@ -83,7 +89,7 @@ public class Constraint {
     /**
      * Teste l'égalité de deux contraintes/rectangles
      * @param o la contrainte à comparer
-     * @return
+     * @return le résultat du test d'égalité
      */
     @Override
     public boolean equals(Object o) {
