@@ -262,7 +262,6 @@ public class MainTest {
         Assert.assertEquals(0, domain.getConstraints().get(2).getyMin());
     }
 
-    // Ne passe pas !
     @Test
     public void testNonOverLapBottom2() {
         Domain domain = new Domain();
@@ -295,6 +294,6 @@ public class MainTest {
         Assert.assertEquals(2, domain.getConstraints().get(4).getyMin());
 
         // R6 : la borne xMax reste à 9
-        Assert.assertEquals(2, domain.getConstraints().get(5).getxMin());
+        Assert.assertEquals(2, domain.getConstraints().get(5).getyMin());
     }
 }
