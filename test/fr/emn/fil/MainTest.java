@@ -255,10 +255,10 @@ public class MainTest {
         // On recalcule les bornes
         domain.nonOverLapBottom(); // TODO : ajouter des assert ici  <--
 
-        // R2 : la borne xMax reste à 6
+        // R2 : la borne yMin reste à 0
         Assert.assertEquals(0, domain.getConstraints().get(1).getyMin());
 
-        // R3 : la borne xMax reste à 8
+        // R3 : la borne yMin reste à 0
         Assert.assertEquals(0, domain.getConstraints().get(2).getyMin());
     }
 
@@ -287,13 +287,13 @@ public class MainTest {
 
         domain.nonOverLapBottom();
 
-        // R1 : la borne xMax passe de 5 à 4
+        // R1 : la borne yMin reste à 2
         Assert.assertEquals(2, domain.getConstraints().get(0).getyMin());
 
-        // R5 : la borne xMax reste à 8
+        // R5 : la borne yMin reste à 2
         Assert.assertEquals(2, domain.getConstraints().get(4).getyMin());
 
-        // R6 : la borne xMax reste à 9
+        // R6 : la borne yMin reste à 2
         Assert.assertEquals(2, domain.getConstraints().get(5).getyMin());
     }
 }
