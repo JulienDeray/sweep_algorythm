@@ -140,7 +140,7 @@ public class Domain {
 
         }else{
             //Nous cherchons à redéfinir la borne dans le domaine possible de la contrainte
-            boolean limiteAtteinte;
+            boolean limiteNonAtteinte;
 
             for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
                 //Si il y un début ou fin de forbidden région sur ce delta, alors nous créons un Event correspondant
@@ -153,10 +153,6 @@ public class Domain {
             // Dans le cas du calcul d'un maximum, nous retournons la queue des évènements
             if(!calculeMin){
                 qEvent = reverse(qEvent);
-                limiteAtteinte = delta >= rectangle.getxMin();
-
-            }else{
-                limiteAtteinte = delta <= rectangle.getxMax();
             }
 
             //A présent que les évènements sont définis, nous cherchons à trouver le premier emplacement libre
@@ -178,10 +174,14 @@ public class Domain {
                     delta++;
                     //Nous remplissons le pStatus pour connaître les emplacements libres de la colonne
                     pStatus = handleEvent(yMinOfFR, delta, pStatus, qEvent, true);
+                    // Etablissement de la condition d'atteinte de la limite de la contrainte
+                    limiteNonAtteinte = delta <= rectangle.getxMax();
                 }else{
                     delta--;
                     //Nous remplissons le pStatus pour connaître les emplacements libres de la colonne
                     pStatus = handleEvent(yMinOfFR, delta, pStatus, qEvent, false);
+                    // Etablissement de la condition d'atteinte de la limite de la contrainte
+                    limiteNonAtteinte = delta >= rectangle.getxMin();
                 }
 
                 //Nous vérifions dans chaque case du PStatus s'il y a un/des emplacements
@@ -191,7 +191,7 @@ public class Domain {
                         availableY.add(i + yMinOfFR);
                     }
                 }
-            } while (availableY.size() <= 0 && limiteAtteinte);
+            } while (availableY.size() <= 0 && limiteNonAtteinte);
         }
 
         //On random la valeur de y par rapport aux y disponibles
@@ -231,9 +231,9 @@ public class Domain {
 
     /**
      * Renvoit le plus grand x des forbidden régions
-     * @param forbiddenRegions
-     * @param constraints
-     * @return
+     * @param forbiddenRegions les régions interdites
+     * @param constraints la liste des contraintes
+     * @return le maximum des ordonnées
      */
     private static int getMaxY(List<ForbiddenRegion> forbiddenRegions, List<Constraint> constraints) {
         int maxY = forbiddenRegions.get(0).getyMax();
@@ -255,7 +255,7 @@ public class Domain {
     /**
      * Renvoit un entier au hasard parmis une liste d'entiers
      * @param availablesY liste d'integer
-     * @return
+     * @return l'élément de la liste choisi aléatoirement
      */
     private int randomY(List<Integer> availablesY) {
         Random ran = new Random();
@@ -267,7 +267,7 @@ public class Domain {
      * @param yMinOfFR le minimum en y entre toutes les régions interdites
      * @param yMaxOfFR le maximum en y entre toutes les régions interdites
      * @param forbiddenRegions la liste des régions interdites
-     * @return
+     * @return le Pstatus initialisé
      */
     private Integer[] makePstatus(int yMinOfFR, int yMaxOfFR, List<ForbiddenRegion> forbiddenRegions) {
         Integer[] pStatus = new Integer[yMaxOfFR - yMinOfFR + 1];
