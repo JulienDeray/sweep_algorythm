@@ -21,7 +21,7 @@ public class MainTest {
     }
 
     @Test
-    public void testComputeForbiddenRegion() throws Exception {
+    public void testComputeForbiddenRegion() {
         Domain domain = new Domain();
 
         Constraint ri = new Constraint(3, 5);
@@ -40,7 +40,7 @@ public class MainTest {
     }
 
     @Test
-    public void testFindMinimum() throws Exception {
+    public void testFindMinimum() {
         Domain domain = new Domain();
 
         // contraintes placées arbitrairement
@@ -64,7 +64,7 @@ public class MainTest {
     }
 
     @Test
-    public void testNonOverLapLeft1() throws Exception {
+    public void testNonOverLapLeft1() {
         Domain domain = new Domain();
 
         // contraintes placées arbitrairement
@@ -80,12 +80,12 @@ public class MainTest {
         // On recalcule les bornes
         domain.nonOverLapLeft();
 
-        //R3 : la borne xMin passe de 0 à 3
-        Assert.assertEquals(3, domain.getConstraints().get(domain.getConstraints().size()-1).getxMin());
+        // R3 : la borne xMin passe de 0 à 3
+        Assert.assertEquals(3, domain.getConstraints().get(2).getxMin());
     }
 
     @Test
-    public void testNonOverLapLeft2() throws Exception {
+    public void testNonOverLapLeft2() {
         Domain domain = new Domain();
 
         // contraintes placées arbitrairement
@@ -109,16 +109,43 @@ public class MainTest {
 
         domain.nonOverLapLeft();
 
-        //R1 : la borne xMin passe de 0 à 3
+        // R1 : la borne xMin passe de 0 à 3
         Assert.assertEquals(3, domain.getConstraints().get(0).getxMin());
-        //R5 : la borne xMin passe de 4 à 7
-        Assert.assertEquals(7, domain.getConstraints().get(domain.getConstraints().size()-1).getxMin());
-        //R6 : la borne xMin passe de 0 à 7
-        Assert.assertEquals(7, domain.getConstraints().get(domain.getConstraints().size()-2).getxMin());
+
+        // R5 : la borne xMin passe de 4 à 7
+        Assert.assertEquals(7, domain.getConstraints().get(4).getxMin());
+
+        // R6 : la borne xMin passe de 0 à 7
+        Assert.assertEquals(7, domain.getConstraints().get(5).getxMin());
+
     }
 
     @Test
-    public void testNonOverLapRight2() throws Exception {
+    public void testNonOverLapRight1() {
+        Domain domain = new Domain();
+
+        // contraintes placées arbitrairement
+        Constraint c1 = new Constraint(0, 0, 1, 1, 3, 3);
+        domain.addConstraint(c1);
+
+        Constraint c2 = new Constraint(4, 6, 0, 4, 3, 2);
+        domain.addConstraint(c2);
+
+        Constraint c3 = new Constraint(0, 8, 0, 4, 2, 2);
+        domain.addConstraint(c3);
+
+        // On recalcule les bornes
+        domain.nonOverLapRight();
+
+        // R2 : la borne xMax reste à 6
+        Assert.assertEquals(6, domain.getConstraints().get(1).getxMax());
+
+        // R3 : la borne xMax reste à 8
+        Assert.assertEquals(8, domain.getConstraints().get(2).getxMax());
+    }
+
+    @Test
+    public void testNonOverLapRight2() {
         Domain domain = new Domain();
 
         // contraintes placées arbitrairement
@@ -142,11 +169,13 @@ public class MainTest {
 
         domain.nonOverLapRight();
 
-        //R1 : la borne xMin passe de 0 à 3
-        Assert.assertEquals(4, domain.getConstraints().get(0).getxMin());
-        //R5 : la borne xMin passe de 4 à 7
-        Assert.assertEquals(8, domain.getConstraints().get(domain.getConstraints().size()-1).getxMin());
-        //R6 : la borne xMin passe de 0 à 7
-        Assert.assertEquals(9, domain.getConstraints().get(domain.getConstraints().size()-2).getxMin());
+        // R1 : la borne xMax passe de 5 à 4
+        Assert.assertEquals(4, domain.getConstraints().get(0).getxMax());
+
+        // R5 : la borne xMax reste à 8
+        Assert.assertEquals(8, domain.getConstraints().get(4).getxMax());
+
+        // R6 : la borne xMax reste à 9
+        Assert.assertEquals(9, domain.getConstraints().get(5).getxMax());
     }
 }
