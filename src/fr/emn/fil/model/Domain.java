@@ -241,7 +241,7 @@ public class Domain {
                         availableY.add(i + yMinOfFR);
                     }
                 }
-            } while (availableY.size() <= 0 && delta >= rectangle.getxMax());
+            } while (availableY.size() <= 0 && delta >= rectangle.getxMin());
         }
 
         //On random la valeur de y par rapport aux y disponibles
