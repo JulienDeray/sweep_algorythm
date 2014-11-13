@@ -1,5 +1,6 @@
 package fr.emn.fil;
 
+import fr.emn.fil.algo.SweepAlgorithme;
 import fr.emn.fil.model.Constraint;
 import fr.emn.fil.model.Domain;
 import fr.emn.fil.model.ForbiddenRegion;
@@ -30,7 +31,7 @@ public class MainTest {
         Constraint rj = new Constraint(6, 7, 7, 8, 3, 2);
         domain.addConstraint(rj);
 
-        ForbiddenRegion forbiddenRegion = Domain.computeForbiddenRegion(rj, ri.getWidth(), ri.getHeight());
+        ForbiddenRegion forbiddenRegion = SweepAlgorithme.computeForbiddenRegion(rj, ri.getWidth(), ri.getHeight());
 
         Constraint expectedConstraint = new Constraint(5, 8, 4, 8, 3, 2);
         Assert.assertEquals(expectedConstraint.getxMax(), forbiddenRegion.getxMax());
@@ -58,7 +59,7 @@ public class MainTest {
 
         // constrainte à placer par rapport aux autres
         Constraint c5 = new Constraint(1, 8, 1, 8, 5, 4);
-        Position domainMinimum = domain.findMinimum(c5, true, true);
+        Position domainMinimum = SweepAlgorithme.findMinimum(c5, domain.getConstraints(), true, true);
 
         Assert.assertThat(domainMinimum, CoreMatchers.anyOf(CoreMatchers.is(new Position(3, 7)), CoreMatchers.is(new Position(3, 8))));
     }
