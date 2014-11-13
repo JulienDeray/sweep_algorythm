@@ -58,7 +58,7 @@ public class MainTest {
 
         // constrainte à placer par rapport aux autres
         Constraint c5 = new Constraint(1, 8, 1, 8, 5, 4);
-        Position domainMinimum = domain.findMinimum(c5, true);
+        Position domainMinimum = domain.findMinimum(c5, true, true);
 
         Assert.assertThat(domainMinimum, CoreMatchers.anyOf(CoreMatchers.is(new Position(3, 7)), CoreMatchers.is(new Position(3, 8))));
     }
