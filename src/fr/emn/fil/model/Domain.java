@@ -101,7 +101,7 @@ public class Domain {
     }
 
     /**
-     * Réévalue la borne xMin de chaque rectangle du domaine
+     * Réévalue la borne yMax de chaque rectangle du domaine
      * @return nombre de rectangles déplacés
      */
     public int nonOverLapTop(){
@@ -120,6 +120,25 @@ public class Domain {
         return bornesModifiees;
     }
 
+    /**
+     * Réévalue la borne yMax de chaque rectangle du domaine
+     * @return nombre de rectangles déplacés
+     */
+    public int nonOverLapBottom() {
+        int bornesModifiees = 0;
+        //Nous bouclons sur chaque rectangle du domaine
+        for (Constraint rectangle : constraints) {
+            //Nous calculons l'emplacement minimum de ce rectangle
+            Position newPosition = findMinimum(rectangle, false, false);
+            // Si un minimum plus petit que le précédent a été trouvé
+            if( newPosition != null && newPosition.getX() > rectangle.getyMax()){
+                //Nous corrigeons la borne inférieur X de la contrainte
+                rectangle.setyMax(newPosition.getX());
+                bornesModifiees++;
+            }
+        }
+        return bornesModifiees;
+    }
 
     /**
      * Trouver la position minimum ou maximum
@@ -237,7 +256,7 @@ public class Domain {
     }
 
     /**
-     * Applique une rotation horaire de 90° sur chaque contrainte
+     * Applique une rotation anti-horaire de 90° sur chaque contrainte
      * @param constraints
      * @return
      */
