@@ -184,6 +184,27 @@ public class MainTest {
     public void testNonOverLapTop1() {
         Domain domain = new Domain();
 
+        // Contraintes placées arbitrairement
+        Constraint c1 = new Constraint(0, 0, 3, 3, 3, 3);
+        domain.addConstraint(c1);
+
+        Constraint c2 = new Constraint(1, 1, 0, 5, 2, 2);
+        domain.addConstraint(c2);
+
+        // On recalcule les bornes
+        domain.nonOverLapTop();
+
+        // R1 : la borne yMax reste à 1
+        Assert.assertEquals(3, domain.getConstraints().get(0).getyMax());
+
+        // R2 : la borne yMax passe de 5 à 1
+        Assert.assertEquals(1, domain.getConstraints().get(1).getyMax());
+    }
+
+    @Test
+    public void testNonOverLapTop2() {
+        Domain domain = new Domain();
+
         // contraintes placées arbitrairement
         Constraint c1 = new Constraint(0, 0, 1, 1, 3, 3);
         domain.addConstraint(c1);
@@ -197,15 +218,15 @@ public class MainTest {
         // On recalcule les bornes
         domain.nonOverLapTop(); // TODO : ajouter des assert ici  <--
 
-        // R2 : la borne xMax reste à 4
+        // R2 : la borne yMax reste à 4
         Assert.assertEquals(4, domain.getConstraints().get(1).getyMax());
 
-        // R3 : la borne xMax reste à 4
+        // R3 : la borne yMax reste à 4
         Assert.assertEquals(4, domain.getConstraints().get(2).getyMax());
     }
 
     @Test
-    public void testNonOverLapTop2() {
+    public void testNonOverLapTop3() {
         Domain domain = new Domain();
 
         // contraintes placées arbitrairement
@@ -228,7 +249,7 @@ public class MainTest {
         domain.addConstraint(c6);
 
         domain.nonOverLapTop();
-                                                  // TODO : refaires les commentaires outdated
+
         // R1 : la borne xMax reste à 2
         Assert.assertEquals(2, domain.getConstraints().get(0).getyMax());
 
@@ -241,6 +262,27 @@ public class MainTest {
 
     @Test
     public void testNonOverLapBottom1() {
+        Domain domain = new Domain();
+
+        // Contraintes placées arbitrairement
+        Constraint c1 = new Constraint(0, 0, 1, 1, 3, 2);
+        domain.addConstraint(c1);
+
+        Constraint c2 = new Constraint(1, 1, 0, 5, 2, 2);
+        domain.addConstraint(c2);
+
+        // On recalcule les bornes
+        domain.nonOverLapBottom();
+
+        // R1 : la borne yMin reste à 1
+        Assert.assertEquals(1, domain.getConstraints().get(0).getyMin());
+
+        // R2 : la borne yMin passe de 0 à 4
+        Assert.assertEquals(4, domain.getConstraints().get(1).getyMin());
+    }
+
+    @Test
+    public void testNonOverLapBottom2() {
         Domain domain = new Domain();
 
         // contraintes placées arbitrairement
@@ -264,7 +306,7 @@ public class MainTest {
     }
 
     @Test
-    public void testNonOverLapBottom2() {
+    public void testNonOverLapBottom3() {
         Domain domain = new Domain();
 
         // contraintes placées arbitrairement
