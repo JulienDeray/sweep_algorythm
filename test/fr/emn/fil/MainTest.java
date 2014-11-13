@@ -196,10 +196,10 @@ public class MainTest {
         // On recalcule les bornes
         domain.nonOverLapTop(); // TODO : ajouter des assert ici  <--
 
-        // R2 : la borne xMax reste à 6
+        // R2 : la borne xMax reste à 4
         Assert.assertEquals(4, domain.getConstraints().get(1).getyMax());
 
-        // R3 : la borne xMax reste à 8
+        // R3 : la borne xMax reste à 4
         Assert.assertEquals(4, domain.getConstraints().get(2).getyMax());
     }
 
@@ -228,13 +228,13 @@ public class MainTest {
 
         domain.nonOverLapTop();
                                                   // TODO : refaires les commentaires outdated
-        // R1 : la borne xMax passe de 5 à 4
+        // R1 : la borne xMax reste à 2
         Assert.assertEquals(2, domain.getConstraints().get(0).getyMax());
 
-        // R5 : la borne xMax reste à 8
+        // R5 : la borne xMax reste à 3
         Assert.assertEquals(3, domain.getConstraints().get(4).getyMax());
 
-        // R6 : la borne xMax reste à 9
+        // R6 : la borne xMax reste à 5
         Assert.assertEquals(5, domain.getConstraints().get(5).getyMax());
     }
 
