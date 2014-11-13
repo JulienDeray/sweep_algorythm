@@ -80,6 +80,21 @@ public class Domain {
         return bornesModifiees;
     }
 
+    public int nonOverLapTop(){
+        int bornesModifiees = 0;
+        //Nous bouclons sur chaque rectangle du domaine
+        for (Constraint rectangle : constraints) {
+            //Nous calculons l'emplacement minimum de ce rectangle
+            Position newPosition = findMinimumLeft(rectangle);
+            // Si un minimum plus petit que le précédent a été trouvé
+            if( newPosition != null && newPosition.getX() > rectangle.getxMin()){
+                //Nous corrigeons la borne inférieur X de la contrainte
+                rectangle.setxMin(newPosition.getX());
+                bornesModifiees++;
+            }
+        }
+        return bornesModifiees;
+    }
 
     /**
      * Réévalue la borne xMax de chaque rectangle du domaine
@@ -256,7 +271,92 @@ public class Domain {
         }
     }
 
+    /**
+     * Trouver la position minimum en Ordonnée
+     *
+     * @param rectangle
+     * @return la liste d'évènements
+     */
+    public Position findMinimumTop(Constraint rectangle) {
 
+        List<Constraint> invertedConstraints = InvertXY();
+
+        // Liste des régions interdites du rectangle
+        List<ForbiddenRegion> forbiddenRegions = getForbiddenRegionsFor(rectangle);
+
+        // Liste qui contient les évènements
+        List<Event> qEvent = new ArrayList<>();
+
+        //La coordonnée en abcisse du minimum
+        Integer delta = rectangle.getxMin() - 1;
+
+        //Liste des cases disponibles dans la colonne delta
+        List<Integer> availableY = new ArrayList<>();
+
+        //Dans le cas où il n'y a pas de forbidden régions
+        if (forbiddenRegions.isEmpty()) {
+            for (int i = rectangle.getyMin(); i < rectangle.getyMax()+1 ; i++) {
+                availableY.add(i);
+            }
+            delta = rectangle.getxMin();
+        }else{
+            //Nous cherchons à trouver le minimum dans le domaine possible de la contrainte
+            for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
+                //Si il y un début ou fin de forbidden région sur ce delta, alors nous créons un Event correspondant
+                Event eventMin = new Event(forbiddenRegion.getxMin(), forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
+                qEvent.add(eventMin);
+                Event eventMax = new Event(forbiddenRegion.getxMax(), forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
+                qEvent.add(eventMax);
+            }
+
+            //A présent que les évènements sont définis, nous cherchons à trouver l'emplacement libre minimum
+            // Vecteur associé à une colonne, indiquant les cases bloquées par des régions interdites
+            Integer[] pStatus;
+
+            //Nous parcourons chaque colonne, puis chaque case pour trouver les emplacements libres
+            //Calcul des zones limites du Pstatus
+            int yMinOfFR = getMinY(forbiddenRegions, constraints);
+            int yMaxOfFR = getMaxY(forbiddenRegions, constraints);
+
+            do {
+                //Initialise chaque case de la colonne à 0
+                pStatus = makePstatus(yMinOfFR, yMaxOfFR, forbiddenRegions);
+
+                //Nous allons à la colonne suivante
+                delta++;
+
+                //Nous remplissons le pStatus pour connaître les emplacements libres de la colonne
+                pStatus = handleEvent(yMinOfFR, delta, pStatus, qEvent, true);
+
+                //Nous vérifions dans chaque case du PStatus s'il y a un/des emplacements
+                for (int i = 0; i < pStatus.length; i++) {
+                    Integer pStatu = pStatus[i];
+                    if (pStatu.equals(0) && i + yMinOfFR >= rectangle.getyMin() && i + yMinOfFR <= rectangle.getyMax()) {
+                        availableY.add(i + yMinOfFR);
+                    }
+                }
+            } while (availableY.size() <= 0 && delta <= rectangle.getxMax());
+        }
+
+        //On random la valeur de y par rapport aux y disponibles
+        if ( availableY.size() == 0 ) {
+            return null;
+        }
+        else if ( availableY.size() == 1) {
+            return new Position(delta, availableY.get(0));
+        }
+        else {
+            return new Position(delta, randomY(availableY));
+        }
+    }
+
+    private List<Constraint> InvertXY() {
+        List<Constraint> revertedConstraints = new ArrayList<>();
+        for (Constraint constraint : constraints) {
+            revertedConstraints.add(new Constraint( constraint.getxMin(), constraint.getxMax(), constraint.getyMin(), constraint.getyMax(), constraint.getHeight(), constraint.getWidth() ));
+        }
+        return revertedConstraints;
+    }
 
     /**
      * Renvoit le plus petit y des forbidden régions
