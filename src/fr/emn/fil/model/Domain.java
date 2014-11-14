@@ -44,7 +44,7 @@ public class Domain {
         // Nous bouclons sur chaque rectangle du domaine
         for (Constraint rectangle : constraints) {
                 // Nous calculons l'emplacement minimum de ce rectangle
-                Position newPosition = SweepAlgorithme.findMinimum(rectangle, constraints, true, true);
+                Position newPosition = SweepAlgorithme.findMinimum(rectangle, constraints, true);
                 // Si un minimum plus petit que le précédent a été trouvé
                 if( newPosition != null && newPosition.getX() > rectangle.getxMin() ){
                     // Nous corrigeons la borne inférieur X de la contrainte
@@ -52,6 +52,32 @@ public class Domain {
                    bornesModifiees++;
                 }
         }
+        return bornesModifiees;
+    }
+
+    /**
+     * Réévalue la borne yMin de chaque rectangle du domaine
+     * @return nombre de rectangles déplacés
+     */
+    public int nonOverLapBottom(){
+        int bornesModifiees = 0;
+
+        // Inversement des axes
+        List<Constraint> revertedConstraints = SweepAlgorithme.invertXY(constraints);
+
+        // Nous bouclons sur chaque rectangle du domaine
+        for (Constraint rectangle : revertedConstraints) {
+            //Nous calculons l'emplacement minimum de ce rectangle
+            Position newPosition = SweepAlgorithme.findMinimum(rectangle, revertedConstraints, true);
+            // Si un minimum plus petit que le précédent a été trouvé
+            if( newPosition != null && newPosition.getX() > rectangle.getxMin() ){
+                // Nous corrigeons la borne inférieur X de la contrainte
+                rectangle.setxMin(newPosition.getX());
+                bornesModifiees++;
+            }
+        }
+
+        constraints = SweepAlgorithme.invertXY(revertedConstraints);
         return bornesModifiees;
     }
 
@@ -64,7 +90,7 @@ public class Domain {
         // Nous bouclons sur chaque rectangle du domaine
         for (Constraint rectangle : constraints) {
             //Nous calculons l'emplacement maximum de ce rectangle
-            Position newPosition = SweepAlgorithme.findMinimum(rectangle, constraints, false, true);
+            Position newPosition = SweepAlgorithme.findMinimum(rectangle, constraints, false);
             // Si un maximum plus petit que le précédent a été trouvé
             if( newPosition != null && newPosition.getX() < rectangle.getxMax() ){
                 //Nous corrigeons la borne inférieur X de la contrainte
@@ -76,42 +102,27 @@ public class Domain {
     }
 
     /**
-     * Réévalue la borne yMax de chaque rectangle du domaine
-     * @return nombre de rectangles déplacés
-     */
-    public int nonOverLapTop(){
+    * Réévalue la borne yMax de chaque rectangle du domaine
+    * @return nombre de rectangles déplacés
+    */
+    public int nonOverLapTop() {
         int bornesModifiees = 0;
-        // Nous bouclons sur chaque rectangle du domaine
-        for (Constraint rectangle : constraints) {
-            //Nous calculons l'emplacement minimum de ce rectangle
-            Position newPosition = SweepAlgorithme.findMinimum(rectangle, constraints, true, false);
-            // Si un minimum plus petit que le précédent a été trouvé
-            if( newPosition != null && newPosition.getX() > rectangle.getxMin() ){
-                // Nous corrigeons la borne inférieur X de la contrainte
-                rectangle.setxMin(newPosition.getX());
-                bornesModifiees++;
-            }
-        }
-        return bornesModifiees;
-    }
 
-    /**
-     * Réévalue la borne yMax de chaque rectangle du domaine
-     * @return nombre de rectangles déplacés
-     */
-    public int nonOverLapBottom() {
-        int bornesModifiees = 0;
+        // Inversement des axes
+        List<Constraint> revertedConstraints = SweepAlgorithme.invertXY(constraints);
+
         // Nous bouclons sur chaque rectangle du domaine
-        for (Constraint rectangle : constraints) {
+        for (Constraint rectangle : revertedConstraints) {
             // Nous calculons l'emplacement minimum de ce rectangle
-            Position newPosition = SweepAlgorithme.findMinimum(rectangle, constraints, false, false);
+            Position newPosition = SweepAlgorithme.findMinimum(rectangle, revertedConstraints, false);
             // Si un minimum plus petit que le précédent a été trouvé
-            if( newPosition != null && newPosition.getX() > rectangle.getyMax() ){
+            if( newPosition != null && newPosition.getX() < rectangle.getxMax() ){
                 //Nous corrigeons la borne inférieur X de la contrainte
-                rectangle.setyMax(newPosition.getX());
+                rectangle.setxMax(newPosition.getX());
                 bornesModifiees++;
             }
         }
+        constraints = SweepAlgorithme.invertXY(revertedConstraints);
         return bornesModifiees;
     }
 

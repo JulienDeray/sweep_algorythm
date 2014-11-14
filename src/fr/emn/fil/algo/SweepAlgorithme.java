@@ -25,19 +25,10 @@ public abstract class SweepAlgorithme {
      * @param calculeMin True si l'on calcule le minimum ou le maximum
      * @return la liste d'&eacute;v&egrave;nements
      */
-    public static Position findMinimum(Constraint rectangle, List<Constraint> constraints, boolean calculeMin, boolean calculeAbscisse) {
-
-        List<Constraint> usedConstraints;
-
-        if ( calculeAbscisse ) {
-            usedConstraints = constraints;
-        }
-        else {
-            usedConstraints = invertXY( constraints );
-        }
+    public static Position findMinimum(Constraint rectangle, List<Constraint> constraints, boolean calculeMin) {
 
         // Liste des régions interdites du rectangle
-        List<ForbiddenRegion> forbiddenRegions = getForbiddenRegionsFor(rectangle, usedConstraints);
+        List<ForbiddenRegion> forbiddenRegions = getForbiddenRegionsFor(rectangle, constraints);
 
         // Liste qui contient les évènements
         List<Event> qEvent = new ArrayList<>();
@@ -91,13 +82,13 @@ public abstract class SweepAlgorithme {
             Integer[] pStatus;
 
             //Calcul des zones limites du Pstatus
-            int yMinOfFR = getMinY(forbiddenRegions, usedConstraints);
-            int yMaxOfFR = getMaxY(forbiddenRegions, usedConstraints);
+            int yMinOfFR = getMinY(forbiddenRegions, constraints);
+            int yMaxOfFR = getMaxY(forbiddenRegions, constraints);
 
             //Nous parcourons chaque colonne, puis chaque case pour trouver les emplacements libres par colonne
             do {
                 //Initialise chaque case de la colonne à 0
-                pStatus = makePstatus(yMinOfFR, yMaxOfFR, forbiddenRegions);
+                pStatus = makePstatus(yMinOfFR, yMaxOfFR, rectangle);
 
                 if ( calculeMin ) {
                     //Nous allons à la colonne suivante
@@ -142,10 +133,10 @@ public abstract class SweepAlgorithme {
      * @param constraints Jeu de contraintes contenues dans le model
      * @return Jeu de contraintes avec une rotation anti-horaire de 90°
      */
-    private static List<Constraint> invertXY( List<Constraint> constraints ) {
+    public static List<Constraint> invertXY( List<Constraint> constraints ) {
         List<Constraint> revertedConstraints = new ArrayList<>();
         for (Constraint constraint : constraints) {
-            revertedConstraints.add(new Constraint( constraint.getxMin(), constraint.getxMax(), constraint.getyMin(), constraint.getyMax(), constraint.getHeight(), constraint.getWidth() ));
+            revertedConstraints.add(new Constraint( constraint.getyMin(), constraint.getyMax(), constraint.getxMin(), constraint.getxMax(), constraint.getHeight(), constraint.getWidth() ));
         }
         return revertedConstraints;
     }
@@ -210,20 +201,20 @@ public abstract class SweepAlgorithme {
      * Construit et initialise le Pstatus, tableau indiquant les emplacements libres ou non d'une colonne
      * @param yMinOfFR le minimum en y entre toutes les régions interdites
      * @param yMaxOfFR le maximum en y entre toutes les régions interdites
-     * @param forbiddenRegions la liste des régions interdites
+     * @param rectangle la liste des régions interdites
      * @return le Pstatus initialisé
      */
-    private static Integer[] makePstatus(int yMinOfFR, int yMaxOfFR, List<ForbiddenRegion> forbiddenRegions) {
+    private static Integer[] makePstatus(int yMinOfFR, int yMaxOfFR, Constraint rectangle) {
         Integer[] pStatus = new Integer[yMaxOfFR - yMinOfFR + 1];
 
         for (int y = 0; y < pStatus.length; y++) {
             pStatus[y] = 1;
         }
-        for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
-            for ( int y = forbiddenRegion.getyMin(); y <= forbiddenRegion.getyMax(); y++ ) {
+//        for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
+            for ( int y = rectangle.getyMin(); y <= rectangle.getyMax(); y++ ) {
                 pStatus[y - yMinOfFR] = 0;
             }
-        }
+//        }
 
         return pStatus;
     }
