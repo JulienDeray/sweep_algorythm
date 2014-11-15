@@ -59,7 +59,7 @@ public class MainTest {
 
         // constrainte à placer par rapport aux autres
         Constraint c5 = new Constraint(1, 8, 1, 8, 5, 4);
-        Position domainMinimum = SweepAlgorithme.findMinimum(c5, domain.getConstraints(), true, true);
+        Position domainMinimum = SweepAlgorithme.findMinimum(c5, domain.getConstraints(), true);
 
         Assert.assertThat(domainMinimum, CoreMatchers.anyOf(CoreMatchers.is(new Position(3, 7)), CoreMatchers.is(new Position(3, 8))));
     }
@@ -277,8 +277,8 @@ public class MainTest {
         // R1 : la borne yMin reste à 1
         Assert.assertEquals(1, domain.getConstraints().get(0).getyMin());
 
-        // R2 : la borne yMin passe de 0 à 4
-        Assert.assertEquals(4, domain.getConstraints().get(1).getyMin());
+        // R2 : la borne yMin passe de 0 à 3
+        Assert.assertEquals(3, domain.getConstraints().get(1).getyMin());
     }
 
     @Test
