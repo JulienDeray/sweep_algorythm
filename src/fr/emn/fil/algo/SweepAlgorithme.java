@@ -210,11 +210,10 @@ public abstract class SweepAlgorithme {
         for (int y = 0; y < pStatus.length; y++) {
             pStatus[y] = 1;
         }
-//        for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
+            // Seul le domaine du rectangle est rendu accessible
             for ( int y = rectangle.getyMin(); y <= rectangle.getyMax(); y++ ) {
                 pStatus[y - yMinOfFR] = 0;
             }
-//        }
 
         return pStatus;
     }
