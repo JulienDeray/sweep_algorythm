@@ -351,6 +351,7 @@ public class MainTest {
         domain.addConstraint(c2);
 
         // lance le multiLap
+        domain.nonOverLap();
 
         // R1 passe en (0, 0)
         Assert.assertEquals(0, domain.getConstraints().get(0).getxMin());
@@ -370,7 +371,7 @@ public class MainTest {
     }
 
     @Test
-    public void testNonOverLapMultiLap() {
+    public void testNonOverLapMultiple1() {
         Domain domain = new Domain();
 
         Constraint c1 = new Constraint(4, 7, 0, 5, 3, 1);
@@ -383,7 +384,48 @@ public class MainTest {
         domain.addConstraint(c2);
 
         // lance le multiLap
-
+        domain.nonOverLap();
         // aucune idée du résultat par contre ... il faudrait le lancer plusieurs fois pour voir si on a le même résultat et si il est plausible.
+
+        boolean tru ;
     }
+
+    @Test
+    public void testNonOverLapMultiple2() {
+        Domain domain = new Domain();
+
+        // contraintes placées arbitrairement
+        Constraint c1 = new Constraint(0, 0, 0, 0, 3, 1);
+        domain.addConstraint(c1);
+
+        Constraint c2 = new Constraint(0, 0, 2, 2, 3, 1);
+        domain.addConstraint(c2);
+
+        Constraint c3 = new Constraint(0, 0, 1, 1, 1, 1);
+        domain.addConstraint(c3);
+
+        Constraint c4 = new Constraint(0, 0, 1, 1, 1, 1);
+        domain.addConstraint(c4);
+
+        Constraint c5 = new Constraint(2, 2, 1, 1, 1, 1);
+        domain.addConstraint(c5);
+
+        Constraint c6 = new Constraint(0, 2, 0, 2, 1, 1);
+        domain.addConstraint(c6);
+
+        domain.nonOverLap();
+
+        // R6 : la borne xMin passe de 0 à 1
+        Assert.assertEquals(1, domain.getConstraints().get(5).getxMin());
+
+        // R6 : la borne xMax passe de 2 à 1
+        Assert.assertEquals(1, domain.getConstraints().get(5).getxMax());
+
+        // R6 : la borne yMin passe de 0 à 1
+        Assert.assertEquals(1, domain.getConstraints().get(5).getyMin());
+
+        // R6 : la borne yMax passe de 2 à 1
+        Assert.assertEquals(1, domain.getConstraints().get(5).getyMax());
+    }
+
 }
