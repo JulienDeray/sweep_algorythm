@@ -344,54 +344,25 @@ public class MainTest {
      public void testNonOverLapLeftBottom() {
         Domain domain = new Domain();
 
-        Constraint c1 = new Constraint(0, 5, 0, 5, 2, 2);
+        Constraint c1 = new Constraint(0, 0, 3, 3, 2, 4);
         domain.addConstraint(c1);
 
-        Constraint c2 = new Constraint(0, 7, 3, 8, 4, 4);
+        Constraint c2 = new Constraint(2, 2, 0, 0, 3, 3);
         domain.addConstraint(c2);
+
+        Constraint c3 = new Constraint(0, 4, 0, 5, 2, 4);
+        domain.addConstraint(c3);
 
         // lance le multiLap
         domain.nonOverLap();
 
-        // R1 passe en (0, 0)
-        Assert.assertEquals(0, domain.getConstraints().get(0).getxMin());
-        Assert.assertEquals(0, domain.getConstraints().get(0).getyMin());
-
-        // la constrainte de scale à la taille du rectangle à la fin ?
-        Assert.assertEquals(2, domain.getConstraints().get(0).getxMax());
-        Assert.assertEquals(2, domain.getConstraints().get(0).getyMax());
-
-        // R2 passe en (0, 3)
-        Assert.assertEquals(0, domain.getConstraints().get(1).getxMin());
-        Assert.assertEquals(3, domain.getConstraints().get(1).getyMin());
-
-        // la constrainte de scale à la taille du rectangle à la fin ?
-        Assert.assertEquals(4, domain.getConstraints().get(1).getxMax());
-        Assert.assertEquals(7, domain.getConstraints().get(1).getyMax());
+        // R1 et R2 sont fixes, R3 voient ses bornes left et bottom (xmin et ymin) modifiées
+        Assert.assertEquals(2, domain.getConstraints().get(2).getxMin());
+        Assert.assertEquals(3, domain.getConstraints().get(2).getyMin());
     }
 
     @Test
     public void testNonOverLapMultiple1() {
-        Domain domain = new Domain();
-
-        Constraint c1 = new Constraint(4, 7, 0, 5, 3, 1);
-        domain.addConstraint(c1);
-
-        Constraint c2 = new Constraint(0, 5, 0, 4, 3, 3);
-        domain.addConstraint(c2);
-
-        Constraint c3 = new Constraint(0, 7, 3, 8, 1, 3);
-        domain.addConstraint(c2);
-
-        // lance le multiLap
-        domain.nonOverLap();
-        // aucune idée du résultat par contre ... il faudrait le lancer plusieurs fois pour voir si on a le même résultat et si il est plausible.
-
-        boolean tru ;
-    }
-
-    @Test
-    public void testNonOverLapMultiple2() {
         Domain domain = new Domain();
 
         // contraintes placées arbitrairement
