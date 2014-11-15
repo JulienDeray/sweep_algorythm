@@ -75,7 +75,7 @@ public class MainTest {
         Constraint c2 = new Constraint(4, 6, 0, 4, 3, 2);
         domain.addConstraint(c2);
 
-        Constraint c3 = new Constraint(0, 8, 0, 4, 2, 2);
+        Constraint c3 = new Constraint(0, 8, 0, 3, 2, 2);
         domain.addConstraint(c3);
 
         // On recalcule les bornes
