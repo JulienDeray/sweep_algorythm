@@ -12,7 +12,6 @@ import fr.emn.fil.algo.SweepAlgorithme;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Domain {
     private int x;
@@ -132,5 +131,19 @@ public class Domain {
      */
     public List<Constraint> getConstraints(){
         return this.constraints;
+    }
+
+    /**
+     * Recalcule les bornes de toutes les contraintes
+     */
+    public void nonOverLap(){
+        boolean estTermine;
+        //Recalcul de toutes les bornes tant qu'elles ont besoin d'être modifiées
+        do{
+            estTermine = true;
+            if(nonOverLapLeft() != 0 || nonOverLapRight() != 0 || nonOverLapTop() != 0 || nonOverLapBottom() != 0) {
+                estTermine = false;
+            }
+        }while(!estTermine);
     }
 }

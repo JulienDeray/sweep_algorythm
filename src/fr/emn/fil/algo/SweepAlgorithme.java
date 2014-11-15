@@ -305,4 +305,9 @@ public abstract class SweepAlgorithme {
         }
         return list;
     }
+
+    /**
+     * Recalcule les bornes de toutes les contraintes
+     */
+    protected abstract void nonOverLap();
 }
