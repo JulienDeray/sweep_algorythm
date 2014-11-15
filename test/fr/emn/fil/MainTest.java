@@ -339,4 +339,51 @@ public class MainTest {
         // R6 : la borne yMin reste à 2
         Assert.assertEquals(2, domain.getConstraints().get(5).getyMin());
     }
+
+    @Test
+     public void testNonOverLapLeftBottom() {
+        Domain domain = new Domain();
+
+        Constraint c1 = new Constraint(0, 5, 0, 5, 2, 2);
+        domain.addConstraint(c1);
+
+        Constraint c2 = new Constraint(0, 7, 3, 8, 4, 4);
+        domain.addConstraint(c2);
+
+        // lance le multiLap
+
+        // R1 passe en (0, 0)
+        Assert.assertEquals(0, domain.getConstraints().get(0).getxMin());
+        Assert.assertEquals(0, domain.getConstraints().get(0).getyMin());
+
+        // la constrainte de scale à la taille du rectangle à la fin ?
+        Assert.assertEquals(2, domain.getConstraints().get(0).getxMax());
+        Assert.assertEquals(2, domain.getConstraints().get(0).getyMax());
+
+        // R2 passe en (0, 3)
+        Assert.assertEquals(0, domain.getConstraints().get(1).getxMin());
+        Assert.assertEquals(3, domain.getConstraints().get(1).getyMin());
+
+        // la constrainte de scale à la taille du rectangle à la fin ?
+        Assert.assertEquals(4, domain.getConstraints().get(1).getxMax());
+        Assert.assertEquals(7, domain.getConstraints().get(1).getyMax());
+    }
+
+    @Test
+    public void testNonOverLapMultiLap() {
+        Domain domain = new Domain();
+
+        Constraint c1 = new Constraint(4, 7, 0, 5, 3, 1);
+        domain.addConstraint(c1);
+
+        Constraint c2 = new Constraint(0, 5, 0, 4, 3, 3);
+        domain.addConstraint(c2);
+
+        Constraint c3 = new Constraint(0, 7, 3, 8, 1, 3);
+        domain.addConstraint(c2);
+
+        // lance le multiLap
+
+        // aucune idée du résultat par contre ... il faudrait le lancer plusieurs fois pour voir si on a le même résultat et si il est plausible.
+    }
 }
