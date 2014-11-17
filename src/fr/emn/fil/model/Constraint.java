@@ -52,13 +52,9 @@ public class Constraint {
         return yMin;
     }
 
-    public void setyMin(int y) { this.yMin = y; }
-
     public int getyMax() {
         return yMax;
     }
-
-    public void setyMax(int y) { this.yMax = y; }
 
     public int getHeight() {
         return height;
