@@ -136,14 +136,30 @@ public class Domain {
     /**
      * Recalcule les bornes de toutes les contraintes
      */
-    public void nonOverLap(){
-        boolean estTermine;
-        //Recalcul de toutes les bornes tant qu'elles ont besoin d'être modifiées
-        do{
-            estTermine = true;
-            if(nonOverLapLeft() != 0 || nonOverLapRight() != 0 || nonOverLapTop() != 0 || nonOverLapBottom() != 0) {
-                estTermine = false;
-            }
-        }while(!estTermine);
+    public int nonOverLap() {
+        // Recalcul de toutes les bornes tant qu'elles ont besoin d'être modifiées
+        int nbIter = 0;
+        while (nonOverLapLeft() != 0 || nonOverLapRight() != 0 || nonOverLapTop() != 0 || nonOverLapBottom() != 0) {
+            nbIter++;
+        }
+        return nbIter;
+    }
+
+    /**
+     * Recalcule les bornes de toutes les contraintes
+     */
+    public int nonOverLapBis() {
+        // Recalcul de toutes les bornes tant qu'elles ont besoin d'être modifiées
+        int res = 0;
+        int i = 1;
+        while ( i > 0 ) {
+            i = 0;
+            i += nonOverLapLeft();
+            i += nonOverLapRight();
+            i += nonOverLapTop();
+            i += nonOverLapBottom();
+            res += i;
+        }
+        return res;
     }
 }
