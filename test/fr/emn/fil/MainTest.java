@@ -1,3 +1,9 @@
+/**
+ * Classe de test principale du projet de non-recoupement des rectangles
+ * Created with IntelliJ IDEA.
+ * Autor: julienderay
+ * Date: 13/10/14
+ */
 package fr.emn.fil;
 
 import fr.emn.fil.algo.SweepAlgorithme;
@@ -194,7 +200,7 @@ public class MainTest {
         // On recalcule les bornes
         domain.nonOverLapTop();
 
-        // R1 : la borne yMax reste à 1
+        // R1 : la borne yMax reste à 3
         Assert.assertEquals(3, domain.getConstraints().get(0).getyMax());
 
         // R2 : la borne yMax passe de 5 à 1
@@ -357,7 +363,7 @@ public class MainTest {
 
         int nbItar = domain.nonOverLapBis(); // 674000 ns
 
-        // Il faut opérer deux fois les quatre balayages pour
+        // Il y a deux modifications
         Assert.assertEquals(2, nbItar);
 
         // R1 et R2 sont fixes, R3 voient ses bornes left et bottom (xmin et ymin) modifiées
@@ -390,7 +396,7 @@ public class MainTest {
 
         int nbItar = domain.nonOverLapBis();
 
-        // Il faut opérer quatre fois les quatre balayages pour
+        // Il y quatre modifications
         Assert.assertEquals(4, nbItar);
 
         // R6 : la borne xMin passe de 0 à 1
@@ -422,10 +428,13 @@ public class MainTest {
 
         int nbModifs = domain.nonOverLapBis();
 
-        // Il faut opérer quatre fois les quatre balayages pour
+        // Il y a trois bornes modifiées
         Assert.assertEquals(3, nbModifs);
+
+        // R1 : la borne xMin passe de 0 à 4
         Assert.assertEquals(4, domain.getConstraints().get(0).getxMin());
-        Assert.assertEquals(3, domain.getConstraints().get(1).getxMax());
+        // R2 : la borne xMax passe de 0 à 3
+        Assert.assertEquals(3, domain.getConstraints().get(1).getxMin());
     }
 
     @Test
@@ -447,11 +456,14 @@ public class MainTest {
 
         int nbModifs = domain.nonOverLapBis();
 
-        // Il faut opérer quatre fois les quatre balayages pour
+        // Il y a trois bornes modifiées
         Assert.assertEquals(3, nbModifs);
 
+        // R1 : la borne xMin passe de 6 à 7
         Assert.assertEquals(7, domain.getConstraints().get(0).getxMin());
-        Assert.assertEquals(6, domain.getConstraints().get(1).getxMax());
-        Assert.assertEquals(4, domain.getConstraints().get(2).getxMax());
+        // R2 : la borne xMin passe de 4 à 6
+        Assert.assertEquals(6, domain.getConstraints().get(1).getxMin());
+        // R3 : la borne xMin passe de 0 à 4
+        Assert.assertEquals(4, domain.getConstraints().get(2).getxMin());
     }
 }

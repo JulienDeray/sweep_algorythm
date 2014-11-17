@@ -19,11 +19,11 @@ import java.util.Random;
 public abstract class SweepAlgorithme {
 
     /**
-     * Trouver la position minimum ou maximum
+     * Trouver la position minimum ou maximum d'un rectangle par rapport à des contraintes
      *
      * @param rectangle Rectangle à positionner par rapport aux contraintes du domaine
-     * @param calculeMin True si l'on calcule le minimum ou le maximum
-     * @return la liste d'&eacute;v&egrave;nements
+     * @param calculeMin True si l'on cherche un minimum ou False si l'on cherche un maximum
+     * @return la position minimale ou maximale trouvée
      */
     public static Position findMinimum(Constraint rectangle, List<Constraint> constraints, boolean calculeMin) {
 
@@ -64,7 +64,7 @@ public abstract class SweepAlgorithme {
             boolean limiteNonAtteinte;
 
             for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
-                //Si il y un début ou fin de forbidden région sur ce delta, alors nous créons un Event correspondant
+                //Nous créons les évènements  définissant le début et la fin de chacune des régions interdites
                 Event eventMin = new Event(forbiddenRegion.getxMin(), forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
                 qEvent.add(eventMin);
                 Event eventMax = new Event(forbiddenRegion.getxMax(), forbiddenRegion.getyMin(), forbiddenRegion.getyMax());
@@ -82,49 +82,53 @@ public abstract class SweepAlgorithme {
             Integer[] pStatus;
 
             //Calcul des zones limites du Pstatus
-            int yMinOfFR = getMinY(forbiddenRegions, constraints);
-            int yMaxOfFR = getMaxY(forbiddenRegions, constraints);
+            int minGlobal = getMinGlobal(forbiddenRegions, constraints);
+            int maxGlobal = getMaxGlobal(forbiddenRegions, constraints);
 
-            //Nous parcourons chaque colonne, puis chaque case pour trouver les emplacements libres par colonne
+            //Nous parcourons chaque case de chaque delta du domaine du rectangle, pour trouver les premiers emplacements libres
             do {
-                //Initialise chaque case de la colonne à 0
-                pStatus = makePstatus(yMinOfFR, yMaxOfFR, rectangle);
+                //Initialise les cases du delta (0=disponible , 1=interdit)
+                pStatus = makePstatus(minGlobal, maxGlobal, rectangle);
 
                 if ( calculeMin ) {
                     //Nous allons à la colonne suivante
                     delta++;
                     //Nous remplissons le pStatus pour connaître les emplacements libres de la colonne
-                    pStatus = handleEvent(yMinOfFR, delta, pStatus, qEvent, true);
+                    pStatus = handleEvent(minGlobal, delta, pStatus, qEvent, true);
                     // Etablissement de la condition d'atteinte de la limite de la contrainte
                     limiteNonAtteinte = delta <= rectangle.getxMax();
                 }
                 else {
+                    //Nous allons à la colonne suivante
                     delta--;
                     //Nous remplissons le pStatus pour connaître les emplacements libres de la colonne
-                    pStatus = handleEvent(yMinOfFR, delta, pStatus, qEvent, false);
+                    pStatus = handleEvent(minGlobal, delta, pStatus, qEvent, false);
                     // Etablissement de la condition d'atteinte de la limite de la contrainte
                     limiteNonAtteinte = delta >= rectangle.getxMin();
                 }
 
-                //Nous vérifions dans chaque case du PStatus s'il y a un/des emplacements
+                //Nous vérifions dans chaque case du PStatus s'il y a un/des emplacements disponibles
                 for (int i = 0; i < pStatus.length; i++) {
                     Integer pStatu = pStatus[i];
-                    if (pStatu.equals(0) && i + yMinOfFR >= rectangle.getyMin() && i + yMinOfFR <= rectangle.getyMax()) {
-                        availableY.add(i + yMinOfFR);
+                    if (pStatu.equals(0) && i + minGlobal >= rectangle.getyMin() && i + minGlobal <= rectangle.getyMax()) {
+                        availableY.add(i + minGlobal);
                     }
                 }
+                //Tant qu'aucun emplacement n'a été trouvé ou que la limite n'a pas été atteinte
             } while (availableY.size() <= 0 && limiteNonAtteinte);
         }
 
-        //On random la valeur de y par rapport aux y disponibles
         if ( availableY.size() == 0 ) {
+            // Pas de position possible
             return null;
         }
         else if ( availableY.size() == 1) {
+            //On retourne la seule position possible
             return new Position(delta, availableY.get(0));
         }
         else {
-            return new Position(delta, randomY(availableY));
+            //On random la valeur de l'emplacement choisi par rapport aux cases disponibles
+            return new Position(delta, random(availableY));
         }
     }
 
@@ -142,12 +146,12 @@ public abstract class SweepAlgorithme {
     }
 
     /**
-     * Renvoit le plus petit y des forbidden regions
-     * @param forbiddenRegions Régions interdites du rectangle par rapport aux contraintes
-     * @param constraints Jeu de contraintes contenues dans le model
-     * @return Plus petit Y contenu dans les forbidden regions
+     * Renvoit le minimum possible entre les contraintes et les forbidden regions
+     * @param forbiddenRegions Régions interdites d'un rectangle par rapport aux contraintes
+     * @param constraints Régions interdites d'un rectangle par rapport aux contraintes
+     * @return le minimum possible
      */
-    private static int getMinY(List<ForbiddenRegion> forbiddenRegions, List<Constraint> constraints) {
+    private static int getMinGlobal(List<ForbiddenRegion> forbiddenRegions, List<Constraint> constraints) {
         int minY = forbiddenRegions.get(0).getyMin();
         for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
             int min = forbiddenRegion.getyMin();
@@ -166,11 +170,11 @@ public abstract class SweepAlgorithme {
 
     /**
      * Renvoit le plus grand x des forbidden régions
-     * @param forbiddenRegions les régions interdites
-     * @param constraints Jeu de contraintes contenues dans le modella liste des contraintes
-     * @return le maximum des ordonnées
+     * @param forbiddenRegions Régions interdites d'un rectangle par rapport aux contraintes
+     * @param constraints Régions interdites d'un rectangle par rapport aux contraintes
+     * @return le maximum possible
      */
-    private static int getMaxY(List<ForbiddenRegion> forbiddenRegions, List<Constraint> constraints) {
+    private static int getMaxGlobal(List<ForbiddenRegion> forbiddenRegions, List<Constraint> constraints) {
         int maxY = forbiddenRegions.get(0).getyMax();
         for (ForbiddenRegion forbiddenRegion : forbiddenRegions) {
             int max = forbiddenRegion.getyMax();
@@ -189,58 +193,61 @@ public abstract class SweepAlgorithme {
 
     /**
      * Renvoit un entier au hasard parmis une liste d'entiers
-     * @param availablesY liste d'integer
+     * @param availables liste d'integer
      * @return l'élément de la liste choisi aléatoirement
      */
-    private static int randomY(List<Integer> availablesY) {
+    private static int random(List<Integer> availables) {
         Random ran = new Random();
-        return availablesY.get( ran.nextInt(availablesY.size() ) );
+        return availables.get( ran.nextInt(availables.size() ) );
     }
 
     /**
      * Construit et initialise le Pstatus, tableau indiquant les emplacements libres ou non d'une colonne
-     * @param yMinOfFR le minimum en y entre toutes les régions interdites
-     * @param yMaxOfFR le maximum en y entre toutes les régions interdites
+     * @param borneInferieure le minimum possible
+     * @param BorneSuperieure le maximum possible
      * @param rectangle la liste des régions interdites
      * @return le Pstatus initialisé
      */
-    private static Integer[] makePstatus(int yMinOfFR, int yMaxOfFR, Constraint rectangle) {
-        Integer[] pStatus = new Integer[yMaxOfFR - yMinOfFR + 1];
-
+    private static Integer[] makePstatus(int borneInferieure, int BorneSuperieure, Constraint rectangle) {
+        Integer[] pStatus = new Integer[BorneSuperieure - borneInferieure + 1];
+        // Nous indiquons qu'aucune case n'est disponible par défaut
         for (int y = 0; y < pStatus.length; y++) {
             pStatus[y] = 1;
         }
             // Seul le domaine du rectangle est rendu accessible
             for ( int y = rectangle.getyMin(); y <= rectangle.getyMax(); y++ ) {
-                pStatus[y - yMinOfFR] = 0;
+                pStatus[y - borneInferieure] = 0;
             }
 
         return pStatus;
     }
 
     /**
-     * Remplit le pStatus avec le nombre de régions interdites, par case (0,1,2,etc)
+     * Incrémente chaque case du pStatus lorsque des évènements témoignent d'une interdiction
      *
-     * @param delta la colonne à étudier
-     * @param pStatus où indiquer les emplacements libres ou occupés
-     * @param events les évènements de début et fins de forbidden régions
-     * @param isMin true pour un minimum, false pour un maximum
-     * @return le pStatus, contient les emplacements libres ou occupés de la colonne delta
+     * @param delta le delta du pStatus à complété
+     * @param pStatus où indiquer les emplacements libres ou occupés sur le delta
+     * @param events les évènements de début et fin de forbidden régions
+     * @param isMin True pour un minimum, False pour un maximum
+     * @return le pStatus, mis à jour avec les emplacements libres(0) ou interdits(1+) du delta
      */
     private static Integer[] handleEvent(int yMin, Integer delta, Integer[] pStatus, List<Event> events, boolean isMin) {
         for (int i = 0; i < events.size() - 1; i += 2) {
+            //Les limites d'une région interdite
             int minX;
             int maxX;
             if(isMin){
-                minX = events.get(i).getPositionX();
-                maxX = events.get(i+1).getPositionX();
+                minX = events.get(i).getPosition();
+                maxX = events.get(i+1).getPosition();
             }else {
-                maxX = events.get(i).getPositionX();
-                minX = events.get(i + 1).getPositionX();
+                maxX = events.get(i).getPosition();
+                minX = events.get(i + 1).getPosition();
             }
 
+            //Si le delta est compris dans une région interdite
             if ( delta >= minX && delta <= maxX ) {
-                for ( int y = events.get(i).getyMin(); y <= events.get(i).getyMax(); y++ ) {
+                //Nous rendons les cases concernées indisponibles
+                for ( int y = events.get(i).getMin(); y <= events.get(i).getMax(); y++ ) {
                     pStatus[y - yMin] += 1;
                 }
             }
@@ -252,7 +259,7 @@ public abstract class SweepAlgorithme {
      * Calcule puis retourne la liste des régions interdites du rectangle par rapport aux contraintes
      *
      * @param rectangle le rectangle que l'on veut placer.
-     * @return la liste des régions interdites
+     * @return la liste des régions interdites de ce rectangle
      */
     private static List<ForbiddenRegion> getForbiddenRegionsFor(Constraint rectangle, List<Constraint> constraints) {
         List<ForbiddenRegion> forbiddenRegions = new ArrayList<>();
@@ -279,11 +286,13 @@ public abstract class SweepAlgorithme {
      */
     public static ForbiddenRegion computeForbiddenRegion(Constraint rj, int width, int height) {
 
+        //Calcul des limites de la région interdite
         int xMin = rj.getxMax() - width + 1;
         int xMax = rj.getxMin() + rj.getWidth() - 1;
         int yMin = rj.getyMax() - height + 1;
         int yMax = rj.getyMin() + rj.getHeight() - 1;
 
+        //Pas de région interdite
         if (xMin > xMax || yMin > yMax) {
             return null;
         }
@@ -305,9 +314,4 @@ public abstract class SweepAlgorithme {
         }
         return list;
     }
-
-    /**
-     * Recalcule les bornes de toutes les contraintes
-     */
-    protected abstract void nonOverLap();
 }

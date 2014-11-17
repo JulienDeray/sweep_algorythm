@@ -1,4 +1,5 @@
 /**
+ * Une position en (x,y)
  * Created with IntelliJ IDEA.
  * Autor: julienderay
  * Company : SERLI
@@ -24,6 +25,11 @@ public class Position {
         return y;
     }
 
+    /**
+     * Redéfinition equals pour une position
+     * @param o l'objet à comparer
+     * @return True si les objets sont égaux, False sinon
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -37,6 +43,10 @@ public class Position {
         return true;
     }
 
+    /**
+     * Redéfinition hashCode pour une position
+     * @return la position en hashCode
+     */
     @Override
     public int hashCode() {
         int result = x;
@@ -44,6 +54,10 @@ public class Position {
         return result;
     }
 
+    /**
+     * Redéfinition toString pour une position
+     * @return la position en String
+     */
     @Override
     public String toString() {
         return "Position{" +

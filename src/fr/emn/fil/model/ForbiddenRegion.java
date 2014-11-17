@@ -1,4 +1,5 @@
 /**
+ * Région interdite, zone interdite pour un placement entre deux rectangles.
  * Created with IntelliJ IDEA.
  * Autor: julienderay
  * Company : SERLI
@@ -37,6 +38,10 @@ public class ForbiddenRegion {
         return yMax;
     }
 
+    /**
+     * Contenu d'une région interdite mis en String
+     * @return la String de la région interdite
+     */
     @Override
     public String toString() {
         return "ForbiddenRegion{" +
