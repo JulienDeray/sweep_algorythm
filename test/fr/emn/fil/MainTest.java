@@ -216,7 +216,7 @@ public class MainTest {
         domain.addConstraint(c3);
 
         // On recalcule les bornes
-        domain.nonOverLapTop(); // TODO : ajouter des assert ici  <--
+        domain.nonOverLapTop();
 
         // R2 : la borne yMax reste à 4
         Assert.assertEquals(4, domain.getConstraints().get(1).getyMax());
@@ -296,7 +296,7 @@ public class MainTest {
         domain.addConstraint(c3);
 
         // On recalcule les bornes
-        domain.nonOverLapBottom(); // TODO : ajouter des assert ici  <--
+        domain.nonOverLapBottom();
 
         // R2 : la borne yMin reste à 0
         Assert.assertEquals(0, domain.getConstraints().get(1).getyMin());
@@ -353,8 +353,12 @@ public class MainTest {
         Constraint c3 = new Constraint(0, 4, 0, 5, 2, 4);
         domain.addConstraint(c3);
 
-        // lance le multiLap
-        domain.nonOverLap();
+//        int nbItar = domain.nonOverLap(); // 3546000 ns
+
+        int nbItar = domain.nonOverLapBis(); // 674000 ns
+
+        // Il faut opérer deux fois les quatre balayages pour
+        Assert.assertEquals(2, nbItar);
 
         // R1 et R2 sont fixes, R3 voient ses bornes left et bottom (xmin et ymin) modifiées
         Assert.assertEquals(2, domain.getConstraints().get(2).getxMin());
@@ -384,7 +388,10 @@ public class MainTest {
         Constraint c6 = new Constraint(0, 2, 0, 2, 1, 1);
         domain.addConstraint(c6);
 
-        domain.nonOverLap();
+        int nbItar = domain.nonOverLapBis();
+
+        // Il faut opérer quatre fois les quatre balayages pour
+        Assert.assertEquals(4, nbItar);
 
         // R6 : la borne xMin passe de 0 à 1
         Assert.assertEquals(1, domain.getConstraints().get(5).getxMin());
@@ -399,4 +406,52 @@ public class MainTest {
         Assert.assertEquals(1, domain.getConstraints().get(5).getyMax());
     }
 
+    @Test
+    public void testNonOverLapMultiple2() {
+        Domain domain = new Domain();
+
+        // contraintes placées arbitrairement
+        Constraint c1 = new Constraint( 0, 4, 0, 0, 1, 1 );
+        domain.addConstraint(c1);
+
+        Constraint c2 = new Constraint(0, 3, 0, 0, 1, 1);
+        domain.addConstraint(c2);
+
+        Constraint c3 = new Constraint(0, 0, 0, 0, 3, 3);
+        domain.addConstraint(c3);
+
+        int nbModifs = domain.nonOverLapBis();
+
+        // Il faut opérer quatre fois les quatre balayages pour
+        Assert.assertEquals(3, nbModifs);
+        Assert.assertEquals(4, domain.getConstraints().get(0).getxMin());
+        Assert.assertEquals(3, domain.getConstraints().get(1).getxMax());
+    }
+
+    @Test
+    public void testNonOverLapMultiple3() {
+        Domain domain = new Domain();
+
+        // contraintes placées arbitrairement
+        Constraint c1 = new Constraint(6, 8, 0, 0, 2, 5);
+        domain.addConstraint(c1);
+
+        Constraint c2 = new Constraint(4, 6, 0, 4, 1, 5);
+        domain.addConstraint(c2);
+
+        Constraint c3 = new Constraint(0, 4, 4, 4, 2, 4);
+        domain.addConstraint(c3);
+
+        Constraint c4 = new Constraint(0, 0, 4, 4, 4, 4);
+        domain.addConstraint(c4);
+
+        int nbModifs = domain.nonOverLapBis();
+
+        // Il faut opérer quatre fois les quatre balayages pour
+        Assert.assertEquals(3, nbModifs);
+
+        Assert.assertEquals(7, domain.getConstraints().get(0).getxMin());
+        Assert.assertEquals(6, domain.getConstraints().get(1).getxMax());
+        Assert.assertEquals(4, domain.getConstraints().get(2).getxMax());
+    }
 }
